@@ -10,6 +10,7 @@ BasePage {
 
 	sTitle: qsTr("User");
 	objectName: "idLoginPage";
+	menus: pageStack.depth === 1 ? mainmenu : null;
 
 	function _Init()
 	{
@@ -129,8 +130,7 @@ BasePage {
 
 				controller._ShowMessage(qsTr("Login successful!"));
 				root.bBusy = false;
-				pageStack.pop(undefined, true);
-				controller._OpenHomePage(true);
+				obj._Rediect();
 			};
 			var f = function(err){
 				controller._ShowMessage(err);
@@ -157,6 +157,17 @@ BasePage {
 				qsTr("Get login uuid fail"),
 			];
 			return States[n >= 0 ? n : States.length + n];
+		}
+
+		function _Rediect()
+		{
+			if(pageStack.depth > 1)
+			{
+				pageStack.pop(undefined, true);
+				pageStack.currentPage._Init();
+			}
+			else
+				controller._OpenHomePage(true);
 		}
 	}
 
@@ -248,6 +259,18 @@ BasePage {
 			}
 			else controller._ShowMessage(value);
 			obj.reqName = "";
+		}
+	}
+
+	ContextMenu{
+		id: mainmenu;
+		MenuLayout {
+			MenuItem{
+				text: qsTr("Quit");
+				onClicked: {
+					Qt.quit();
+				}
+			}
 		}
 	}
 

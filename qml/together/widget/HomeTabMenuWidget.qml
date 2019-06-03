@@ -32,6 +32,12 @@ ContextMenu{
 			}
 		}
 		MenuItem{
+			text: qsTr("Refresh");
+			onClicked: {
+				obj._GetInitData(true);
+			}
+		}
+		MenuItem{
 			text: qsTr("Relogin");
 			onClicked: {
 				globals._Login();

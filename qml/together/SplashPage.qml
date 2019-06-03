@@ -11,23 +11,18 @@ BasePage{
 	sTitle: qsTr("Splash");
 	objectName: "idSplashPage";
 
-	function _Init(w)
+	function _Init(nw)
 	{
-		obj._CheckLogin(w, true);
+		obj._CheckLogin(nw, true);
 	}
 
 	QtObject{
 		id: obj;
 		property variant dialog: null;
 
-		function _CheckLogin(w, r)
+		function _CheckLogin(nw, r)
 		{
-			if(!_UT.GetSetting("show_warning") || !w)
-			{
-				if(r) globals._Restore();
-				controller._OpenHomePage(true);
-			}
-			else
+			if(_UT.GetSetting("show_warning") && !nw)
 			{
 				obj.dialog = controller._Info(
 					qsTr("Warning"),
@@ -49,8 +44,8 @@ BasePage{
 							text: qsTr("All your login data is random for this time, and is invalid on next time."),
 						},
 					],
-					"<a href='_UT.SetSetting(\"show_warning\", false); if(r) globals._Restore();controller._OpenHomePage(true);'>" + qsTr("Do not show this") + "</a>"
-					+ " <a href='if(r) globals._Restore();controller._OpenHomePage(true);'>" + qsTr("Accept") + "</a>"
+					"<a href='_UT.SetSetting(\"show_warning\", false); controller._OpenHomePage(true);'>" + qsTr("Do not show this") + "</a>"
+					+ " <a href='controller._OpenHomePage(true);'>" + qsTr("Accept") + "</a>"
 					+ " <a href='Qt.quit();'>" + qsTr("Reject") + "</a>"
 					,
 					function(link){
@@ -61,10 +56,16 @@ BasePage{
 					undefined,
 					function(link){
 						if(obj.dialog) obj.dialog.accept();
+						if(r && _UT.runMode == 2) globals._Restore();
 						eval(link);
 						obj.dialog = null;
 					}
 				);
+			}
+			else
+			{
+				if(r && _UT.runMode == 2) globals._Restore();
+				controller._OpenHomePage(true);
 			}
 		}
 	}
@@ -92,7 +93,7 @@ BasePage{
 			text: qsTr("Login");
 			width: constants._iSizeXXXL;
 			onClicked: {
-                obj._CheckLogin(true, true);
+				obj._CheckLogin(false, true);
 			}
 		}
 		Button{

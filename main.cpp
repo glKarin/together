@@ -26,7 +26,7 @@ namespace id
 	class QmlApplicationViewer;
 }
 
-id::QmlApplicationViewer *qml_viewer;
+QmlApplicationViewer *qml_viewer;
 bool lock = false;
 bool inited = false;
 

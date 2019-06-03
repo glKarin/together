@@ -25,9 +25,9 @@ QtObject {
 	{
 		if(_IsCurrentPage("Main")) return;
 		if(!_CheckLogin()) return;
-		var push = pageStack && pageStack.depth === 1 ? "replace" : "push";
+		pageStack.clear();
 		var page = Qt.createComponent(Qt.resolvedUrl("MainPage.qml"));
-		var p = pageStack[push](page, undefined, im);
+		var p = pageStack.push(page, undefined, im);
 		p._Init();
 		return p;
 	}
@@ -68,6 +68,7 @@ QtObject {
 			//pageStack.currentPage._Init(uname);
 			return;
 		}
+		if(!_CheckLogin()) return;
 		var page = Qt.createComponent(Qt.resolvedUrl("SessionPage.qml"));
 		var p = pageStack.push(page, undefined, im);
 		p._Init(uname);
@@ -203,6 +204,6 @@ QtObject {
 
 	function _IsCurrentPage(name)
 	{
-		return(pageStack && pageStack.currentPage.objectName === "id" + name + "Page");
+		return(pageStack && pageStack.currentPage && pageStack.currentPage.objectName === "id" + name + "Page");
 	}
 }

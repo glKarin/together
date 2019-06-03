@@ -80,7 +80,7 @@ void idUtility::Init()
 		eRunMode = static_cast<idUtility::idRunMode_e>(rm);
 
 #ifdef _DBG
-	if(Dev())
+	if(Dev() == 2)
 	{
 		eRunMode = idUtility::RunMode_Close_Window; // reload QML viewer
 	}
@@ -340,7 +340,7 @@ QVariant idUtility::Changelog(const QString &version) const
 	if(version.isEmpty())
 	{
 		list 
-			<< QObject::tr("Initial version.")
+			<< QObject::tr("Some fixes.")
 			;
 	}
 

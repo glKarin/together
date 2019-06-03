@@ -23,7 +23,7 @@ BasePage{
 	function _Init()
 	{
 		pathview.currentIndex = 2;
-		obj._GetInitData();
+		obj._GetInitData(true);
 	}
 
 	QtObject{
@@ -35,6 +35,7 @@ BasePage{
 			if(!force && sessionmodel.__inited) return;
 
 			root.bBusy = true;
+			appobj._Reset();
 			sessionmodel._Reset();
 			var s = function(data){
 				globals._SetUserInfo(data.userinfo);

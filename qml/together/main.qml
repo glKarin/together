@@ -79,7 +79,7 @@ PageStackWindow {
 					// 7 enter/leave chat
 					if(selector == 2)
 					{
-						if(!controller._IsCurrentPage("Session"))
+						if(!controller._IsCurrentPage("Session") || !Qt.application.active)
 						{
 							_PIPELINE.ShowNotification(qsTr("Notification"), qsTr("You have a new message"));
 						}
@@ -102,6 +102,7 @@ PageStackWindow {
 			}
 			function s(data)
 			{
+				if(!__syncLock) return;
 				globals.synckey = data.synckey;
 				sessionmodel._MakeSessionData(data.msgModel);
 				__syncLock = false;
@@ -128,6 +129,10 @@ PageStackWindow {
 			Script.GetUserContact(d, s, f);
 		}
 
+		function _Reset()
+		{
+			__syncLock = false;
+		}
 	}
 
 	Timer {

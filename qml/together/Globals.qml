@@ -162,6 +162,9 @@ QtObject{
 
 	function _Logout()
 	{
+		logined = false;
+		appobj._Reset();
+
 		var String_Keys = ["skey", "wxsid", "wxuin", "pass_ticket",
 		"webwx_data_ticket", "webwx_auth_ticket",
 		"deviceId",
@@ -182,13 +185,14 @@ QtObject{
 
 		_PIPELINE.SetLoginData(new Object());
 
-		logined = false;
+		sessionmodel._Reset();
 	}
 
 	function _Login()
 	{
 		_Logout();
-		controller._OpenSplashPage(false, true);
+		pageStack.clear();
+		controller._OpenLoginPage();
 	}
 
 	onSynckeyChanged: {

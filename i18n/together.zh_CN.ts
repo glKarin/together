@@ -129,12 +129,12 @@
 <context>
     <name>Controller</name>
     <message>
-        <location filename="../qml/together/Controller.qml" line="136"/>
+        <location filename="../qml/together/Controller.qml" line="143"/>
         <source>Copy %1 to clipboard successful</source>
         <translation type="unfinished">已复制%1到粘贴板</translation>
     </message>
     <message>
-        <location filename="../qml/together/Controller.qml" line="136"/>
+        <location filename="../qml/together/Controller.qml" line="143"/>
         <source>data</source>
         <translation type="unfinished">数据</translation>
     </message>
@@ -210,11 +210,16 @@
     </message>
     <message>
         <location filename="../qml/together/widget/HomeTabMenuWidget.qml" line="35"/>
+        <source>Refresh</source>
+        <translation type="unfinished">刷新</translation>
+    </message>
+    <message>
+        <location filename="../qml/together/widget/HomeTabMenuWidget.qml" line="41"/>
         <source>Relogin</source>
         <translation type="unfinished">重新登录</translation>
     </message>
     <message>
-        <location filename="../qml/together/widget/HomeTabMenuWidget.qml" line="41"/>
+        <location filename="../qml/together/widget/HomeTabMenuWidget.qml" line="47"/>
         <source>Quit</source>
         <translation type="unfinished">退出</translation>
     </message>
@@ -227,12 +232,12 @@
         <translation type="unfinished">用户</translation>
     </message>
     <message>
-        <location filename="../qml/together/LoginPage.qml" line="101"/>
+        <location filename="../qml/together/LoginPage.qml" line="102"/>
         <source>Login timeout</source>
         <translation type="unfinished">等待超时</translation>
     </message>
     <message>
-        <location filename="../qml/together/LoginPage.qml" line="130"/>
+        <location filename="../qml/together/LoginPage.qml" line="131"/>
         <source>Login successful!</source>
         <translation type="unfinished">登录成功</translation>
     </message>
@@ -287,20 +292,25 @@
         <translation type="unfinished">获取登录UUID失败</translation>
     </message>
     <message>
-        <location filename="../qml/together/LoginPage.qml" line="177"/>
+        <location filename="../qml/together/LoginPage.qml" line="188"/>
         <source>Login</source>
         <translation type="unfinished">登录</translation>
     </message>
     <message>
-        <location filename="../qml/together/LoginPage.qml" line="216"/>
+        <location filename="../qml/together/LoginPage.qml" line="227"/>
         <source>Refresh</source>
         <translation type="unfinished">刷新</translation>
+    </message>
+    <message>
+        <location filename="../qml/together/LoginPage.qml" line="269"/>
+        <source>Quit</source>
+        <translation type="unfinished">退出</translation>
     </message>
 </context>
 <context>
     <name>MainPage</name>
     <message>
-        <location filename="../qml/together/MainPage.qml" line="117"/>
+        <location filename="../qml/together/MainPage.qml" line="118"/>
         <source>You can swipe or select menu to change view.</source>
         <translation type="unfinished">左右滑动或选择菜单可以切换视图</translation>
     </message>
@@ -358,8 +368,8 @@
     </message>
     <message>
         <location filename="../src/utility.cpp" line="343"/>
-        <source>Initial version.</source>
-        <translation type="unfinished">初始版本</translation>
+        <source>Some fixes.</source>
+        <translation type="unfinished">一些小修复.</translation>
     </message>
     <message>
         <location filename="../src/id_std.h" line="7"/>
@@ -564,62 +574,62 @@
         <translation type="unfinished">启动图</translation>
     </message>
     <message>
-        <location filename="../qml/together/SplashPage.qml" line="33"/>
+        <location filename="../qml/together/SplashPage.qml" line="28"/>
         <source>Warning</source>
         <translation type="unfinished">警告</translation>
     </message>
     <message>
-        <location filename="../qml/together/SplashPage.qml" line="34"/>
+        <location filename="../qml/together/SplashPage.qml" line="29"/>
         <source>Read this notice before using this application</source>
         <translation type="unfinished">使用本程序时需首先阅读此声明</translation>
     </message>
     <message>
-        <location filename="../qml/together/SplashPage.qml" line="37"/>
+        <location filename="../qml/together/SplashPage.qml" line="32"/>
         <source>Your account must be access login on web.</source>
         <translation type="unfinished">你的账户必须被允许在Web端登录.</translation>
     </message>
     <message>
-        <location filename="../qml/together/SplashPage.qml" line="40"/>
+        <location filename="../qml/together/SplashPage.qml" line="35"/>
         <source>And your account has some problem, I will not assumed liabilities.</source>
         <translation type="unfinished">并且之后你的账号出现问题, 本人不会对此负责.</translation>
     </message>
     <message>
-        <location filename="../qml/together/SplashPage.qml" line="43"/>
+        <location filename="../qml/together/SplashPage.qml" line="38"/>
         <source>The application is based on Web API.</source>
         <translation type="unfinished">该程序是基于Web端接口.</translation>
     </message>
     <message>
-        <location filename="../qml/together/SplashPage.qml" line="46"/>
+        <location filename="../qml/together/SplashPage.qml" line="41"/>
         <source>It means not get ID and telphone number of your and your contacts.</source>
         <translation type="unfinished">这意味着不会获取您和您的联系人的ID和电话号等私密信息.</translation>
     </message>
     <message>
-        <location filename="../qml/together/SplashPage.qml" line="49"/>
+        <location filename="../qml/together/SplashPage.qml" line="44"/>
         <source>All your login data is random for this time, and is invalid on next time.</source>
         <translation type="unfinished">所有关于本次用户登录的数据都是随机分配的, 下次会失效.</translation>
     </message>
     <message>
-        <location filename="../qml/together/SplashPage.qml" line="52"/>
+        <location filename="../qml/together/SplashPage.qml" line="47"/>
         <source>Do not show this</source>
         <translation type="unfinished">同意并不再显示</translation>
     </message>
     <message>
-        <location filename="../qml/together/SplashPage.qml" line="53"/>
+        <location filename="../qml/together/SplashPage.qml" line="48"/>
         <source>Accept</source>
         <translation type="unfinished">同意</translation>
     </message>
     <message>
-        <location filename="../qml/together/SplashPage.qml" line="54"/>
+        <location filename="../qml/together/SplashPage.qml" line="49"/>
         <source>Reject</source>
         <translation type="unfinished">拒绝</translation>
     </message>
     <message>
-        <location filename="../qml/together/SplashPage.qml" line="92"/>
+        <location filename="../qml/together/SplashPage.qml" line="93"/>
         <source>Login</source>
         <translation type="unfinished">登录</translation>
     </message>
     <message>
-        <location filename="../qml/together/SplashPage.qml" line="99"/>
+        <location filename="../qml/together/SplashPage.qml" line="100"/>
         <source>Quit</source>
         <translation type="unfinished">退出</translation>
     </message>
