@@ -111,11 +111,23 @@ Item{
 			qTarget: parent;
 		}
 
-		Button{
-			anchors.horizontalCenter: parent.horizontalCenter;
-			text: qsTr("Quit");
-			onClicked: {
-				Qt.quit();
+		Column{
+			width: parent.width;
+			clip: true;
+			spacing: constants._iSpacingMedium;
+			Button{
+				anchors.horizontalCenter: parent.horizontalCenter;
+				text: qsTr("Check update");
+				onClicked: {
+					appobj._CheckUpdate(true);
+				}
+			}
+			Button{
+				anchors.horizontalCenter: parent.horizontalCenter;
+				text: qsTr("Quit");
+				onClicked: {
+					Qt.quit();
+				}
 			}
 		}
 	}

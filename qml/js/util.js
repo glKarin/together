@@ -293,3 +293,17 @@ function Random(min, max)
 {
 	return parseInt(Math.random() * (max - min) + min);
 }
+
+function ParseBoolean(v)
+{
+	var t = typeof(v);
+	if(t === "boolean")
+		return v;
+	else if(t === "string")
+	{
+		var lv = v.toLowerCase();
+		return lv === "true";
+	}
+	else
+		return Boolean(v);
+}

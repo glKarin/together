@@ -18,7 +18,7 @@
 #include "networkmanager.h"
 #include "id_std.h"
 
-#define ID_SETTING_VERSION 1
+#define ID_SETTING_VERSION 2
 
 namespace id
 {
@@ -36,9 +36,12 @@ namespace id
 		_tDefaultSettings.insert("generals/night_mode", false);
 		_tDefaultSettings.insert("generals/default_browser", 1);
 		_tDefaultSettings.insert("generals/fullscreen", false);
+		_tDefaultSettings.insert("generals/check_update", true);
 
 		_tDefaultSettings.insert("chat/sync_interval", 5);
 		_tDefaultSettings.insert("chat/sync_background", 60);
+		_tDefaultSettings.insert("chat/online_background", 5);
+		_tDefaultSettings.insert("chat/online_check", false);
 		_tDefaultSettings.insert("generals/run_mode", 1);
 
 		_tDefaultSettings.insert("browser/helper", false);
@@ -257,7 +260,7 @@ QVariant idUtility::Get(const QString &name) const
 #define ID_QT qVersion()
 #define ID_WONGKAKUI QObject::tr("June, belongs to you forever, you have been away for %1 year. Seeing you in paradise far away.")
 #ifdef _DBG
-#define ID_ICON_PATH QDir::cleanPath(QCoreApplication::applicationDirPath() + ID_PKG "/80.png")
+#define ID_ICON_PATH QDir::cleanPath(QCoreApplication::applicationDirPath() + "/" ID_PKG "80.png")
 #define ID_CACHE_PATH QFileInfo(".").absoluteFilePath()
 #define ID_SPLASH QFileInfo(".").absoluteFilePath() + "/res/" ID_PKG ".jpg"
 #else
@@ -293,6 +296,7 @@ QVariant idUtility::Get(const QString &name) const
 		ID_M_I(BUID);
 		ID_M_I(CACHE_PATH);
 		ID_M_I(SPLASH);
+		ID_M_I(APPID);
 #undef _NL_M_I
 		r.setValue(map);
 	}
@@ -322,6 +326,7 @@ QVariant idUtility::Get(const QString &name) const
 			else ID_I(BUID)
 			else ID_I(CACHE_PATH)
 			else ID_I(SPLASH)
+			else ID_I(APPID)
 			else r.setValue(QProcessEnvironment::systemEnvironment().value(name));
 #undef _NL_I
 	}
@@ -340,6 +345,8 @@ QVariant idUtility::Changelog(const QString &version) const
 	if(version.isEmpty())
 	{
 		list 
+			<< QObject::tr("Add update ckecking by OpenRepos.net.")
+			<< QObject::tr("Add repeat to send empty message to filehelper for keeping connection(TESTING).")
 			<< QObject::tr("Some fixes.")
 			;
 	}

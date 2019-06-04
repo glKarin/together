@@ -5,7 +5,7 @@
     <name>AboutPage</name>
     <message>
         <location filename="../qml/together/AboutPage.qml" line="10"/>
-        <location filename="../qml/together/AboutPage.qml" line="85"/>
+        <location filename="../qml/together/AboutPage.qml" line="97"/>
         <source>About</source>
         <translation type="unfinished">关于</translation>
     </message>
@@ -50,17 +50,17 @@
         <translation type="unfinished">开发</translation>
     </message>
     <message>
-        <location filename="../qml/together/AboutPage.qml" line="103"/>
+        <location filename="../qml/together/AboutPage.qml" line="112"/>
         <source>Contact</source>
         <translation type="unfinished">联系</translation>
     </message>
     <message>
-        <location filename="../qml/together/AboutPage.qml" line="109"/>
+        <location filename="../qml/together/AboutPage.qml" line="118"/>
         <source>Download</source>
         <translation type="unfinished">下载</translation>
     </message>
     <message>
-        <location filename="../qml/together/AboutPage.qml" line="115"/>
+        <location filename="../qml/together/AboutPage.qml" line="124"/>
         <source>Source</source>
         <translation type="unfinished">源码</translation>
     </message>
@@ -303,6 +303,11 @@
     </message>
     <message>
         <location filename="../qml/together/LoginPage.qml" line="269"/>
+        <source>Check update</source>
+        <translation type="unfinished">检查更新</translation>
+    </message>
+    <message>
+        <location filename="../qml/together/LoginPage.qml" line="275"/>
         <source>Quit</source>
         <translation type="unfinished">退出</translation>
     </message>
@@ -328,7 +333,12 @@
         <translation type="unfinished">关于</translation>
     </message>
     <message>
-        <location filename="../qml/together/ProfileItem.qml" line="116"/>
+        <location filename="../qml/together/ProfileItem.qml" line="120"/>
+        <source>Check update</source>
+        <translation type="unfinished">检查更新</translation>
+    </message>
+    <message>
+        <location filename="../qml/together/ProfileItem.qml" line="127"/>
         <source>Quit</source>
         <translation type="unfinished">退出</translation>
     </message>
@@ -362,12 +372,22 @@
         <translation type="unfinished">解析XML错误</translation>
     </message>
     <message>
-        <location filename="../src/utility.cpp" line="258"/>
+        <location filename="../src/utility.cpp" line="261"/>
         <source>June, belongs to you forever, you have been away for %1 year. Seeing you in paradise far away.</source>
         <translation type="unfinished">六月天, 永远都是属于你的, 别了你%1载. 今天一再想起你.</translation>
     </message>
     <message>
-        <location filename="../src/utility.cpp" line="343"/>
+        <location filename="../src/utility.cpp" line="348"/>
+        <source>Add update ckecking by OpenRepos.net.</source>
+        <translation type="unfinished">新增在OpenRepos.net上检查更新</translation>
+    </message>
+    <message>
+        <location filename="../src/utility.cpp" line="349"/>
+        <source>Add repeat to send empty message to filehelper for keeping connection(TESTING).</source>
+        <translation type="unfinished">新增定时发送空消息到文件传输助手, 以防止掉线(测试).</translation>
+    </message>
+    <message>
+        <location filename="../src/utility.cpp" line="350"/>
         <source>Some fixes.</source>
         <translation type="unfinished">一些小修复.</translation>
     </message>
@@ -440,8 +460,8 @@
     </message>
     <message>
         <location filename="../qml/together/SettingPage.qml" line="41"/>
-        <location filename="../qml/together/SettingPage.qml" line="226"/>
-        <location filename="../qml/together/SettingPage.qml" line="231"/>
+        <location filename="../qml/together/SettingPage.qml" line="240"/>
+        <location filename="../qml/together/SettingPage.qml" line="245"/>
         <source>WARNING</source>
         <translation type="unfinished">警告</translation>
     </message>
@@ -461,7 +481,7 @@
         <translation type="unfinished">恢复默认</translation>
     </message>
     <message>
-        <location filename="../qml/together/SettingPage.qml" line="127"/>
+        <location filename="../qml/together/SettingPage.qml" line="130"/>
         <source>Fullscreen</source>
         <translation type="unfinished">全屏</translation>
     </message>
@@ -471,97 +491,119 @@
         <translation type="unfinished">聊天</translation>
     </message>
     <message>
-        <location filename="../qml/together/SettingPage.qml" line="93"/>
+        <location filename="../qml/together/SettingPage.qml" line="96"/>
         <source>Orientation</source>
         <translation type="unfinished">屏幕方向</translation>
     </message>
     <message>
-        <location filename="../qml/together/SettingPage.qml" line="96"/>
+        <location filename="../qml/together/SettingPage.qml" line="99"/>
         <source>Automatic</source>
         <translation type="unfinished">自动</translation>
     </message>
     <message>
-        <location filename="../qml/together/SettingPage.qml" line="100"/>
+        <location filename="../qml/together/SettingPage.qml" line="103"/>
         <source>Portrait</source>
         <translation type="unfinished">竖屏</translation>
     </message>
     <message>
-        <location filename="../qml/together/SettingPage.qml" line="104"/>
+        <location filename="../qml/together/SettingPage.qml" line="107"/>
         <source>Landscape</source>
         <translation type="unfinished">横屏</translation>
     </message>
     <message>
-        <location filename="../qml/together/SettingPage.qml" line="117"/>
+        <location filename="../qml/together/SettingPage.qml" line="120"/>
         <source>Night mode</source>
         <translation type="unfinished">夜间模式</translation>
     </message>
     <message>
-        <location filename="../qml/together/SettingPage.qml" line="206"/>
+        <location filename="../qml/together/SettingPage.qml" line="160"/>
+        <source>Check update on start</source>
+        <translation type="unfinished">启动时检查更新</translation>
+    </message>
+    <message>
+        <location filename="../qml/together/SettingPage.qml" line="220"/>
         <source>Run mode</source>
         <translation type="unfinished">运行模式</translation>
     </message>
     <message>
-        <location filename="../qml/together/SettingPage.qml" line="209"/>
+        <location filename="../qml/together/SettingPage.qml" line="223"/>
         <source>Application quit when window closed</source>
         <translation type="unfinished">关闭窗口时退出程序</translation>
     </message>
     <message>
-        <location filename="../qml/together/SettingPage.qml" line="226"/>
+        <location filename="../qml/together/SettingPage.qml" line="240"/>
         <source>This mode is only for development.</source>
         <translation type="unfinished">此模式只用于开发测试</translation>
     </message>
     <message>
-        <location filename="../qml/together/SettingPage.qml" line="231"/>
+        <location filename="../qml/together/SettingPage.qml" line="245"/>
         <source>Run mode setting will be used in next running.</source>
         <translation type="unfinished">运行模式设置将在程序完全退出后下次启动生效</translation>
     </message>
     <message>
-        <location filename="../qml/together/SettingPage.qml" line="238"/>
+        <location filename="../qml/together/SettingPage.qml" line="252"/>
         <source>Sync interval</source>
         <translation type="unfinished">同步消息时间间隔</translation>
     </message>
     <message>
-        <location filename="../qml/together/SettingPage.qml" line="244"/>
-        <location filename="../qml/together/SettingPage.qml" line="245"/>
-        <location filename="../qml/together/SettingPage.qml" line="246"/>
-        <location filename="../qml/together/SettingPage.qml" line="263"/>
-        <location filename="../qml/together/SettingPage.qml" line="264"/>
-        <location filename="../qml/together/SettingPage.qml" line="265"/>
+        <location filename="../qml/together/SettingPage.qml" line="258"/>
+        <location filename="../qml/together/SettingPage.qml" line="259"/>
+        <location filename="../qml/together/SettingPage.qml" line="260"/>
+        <location filename="../qml/together/SettingPage.qml" line="277"/>
+        <location filename="../qml/together/SettingPage.qml" line="278"/>
+        <location filename="../qml/together/SettingPage.qml" line="279"/>
         <source>Sec</source>
         <translation type="unfinished">秒</translation>
     </message>
     <message>
-        <location filename="../qml/together/SettingPage.qml" line="137"/>
+        <location filename="../qml/together/SettingPage.qml" line="140"/>
         <source>Default browser</source>
         <translation type="unfinished">默认浏览器</translation>
     </message>
     <message>
-        <location filename="../qml/together/SettingPage.qml" line="140"/>
+        <location filename="../qml/together/SettingPage.qml" line="143"/>
         <source>Internal</source>
         <translation type="unfinished">内置</translation>
     </message>
     <message>
-        <location filename="../qml/together/SettingPage.qml" line="144"/>
+        <location filename="../qml/together/SettingPage.qml" line="147"/>
         <source>System</source>
         <translation type="unfinished">系统</translation>
     </message>
     <message>
-        <location filename="../qml/together/SettingPage.qml" line="213"/>
+        <location filename="../qml/together/SettingPage.qml" line="227"/>
         <source>Run on background and hide window</source>
         <translation type="unfinished">隐藏窗口并在后台运行</translation>
     </message>
     <message>
-        <location filename="../qml/together/SettingPage.qml" line="217"/>
+        <location filename="../qml/together/SettingPage.qml" line="231"/>
         <source>Run on background and close window</source>
         <translation type="unfinished">关闭窗口并在后台运行</translation>
     </message>
     <message>
-        <location filename="../qml/together/SettingPage.qml" line="257"/>
+        <location filename="../qml/together/SettingPage.qml" line="271"/>
         <source>Sync interval on background</source>
         <translation type="unfinished">后台时同步间隔</translation>
     </message>
     <message>
-        <location filename="../qml/together/SettingPage.qml" line="283"/>
+        <location filename="../qml/together/SettingPage.qml" line="289"/>
+        <source>Repeat to send empty message to filehelper</source>
+        <translation type="unfinished">定时发送空消息给文件传输助手</translation>
+    </message>
+    <message>
+        <location filename="../qml/together/SettingPage.qml" line="300"/>
+        <source>Send interval</source>
+        <translation type="unfinished">发送间隔</translation>
+    </message>
+    <message>
+        <location filename="../qml/together/SettingPage.qml" line="306"/>
+        <location filename="../qml/together/SettingPage.qml" line="307"/>
+        <location filename="../qml/together/SettingPage.qml" line="308"/>
+        <source>Min</source>
+        <translation type="unfinished">分</translation>
+    </message>
+    <message>
+        <location filename="../qml/together/SettingPage.qml" line="326"/>
         <source>Reset settings</source>
         <translation type="unfinished">恢复默认设置</translation>
     </message>
@@ -574,62 +616,72 @@
         <translation type="unfinished">启动图</translation>
     </message>
     <message>
-        <location filename="../qml/together/SplashPage.qml" line="28"/>
+        <location filename="../qml/together/SplashPage.qml" line="29"/>
         <source>Warning</source>
         <translation type="unfinished">警告</translation>
     </message>
     <message>
-        <location filename="../qml/together/SplashPage.qml" line="29"/>
+        <location filename="../qml/together/SplashPage.qml" line="30"/>
         <source>Read this notice before using this application</source>
         <translation type="unfinished">使用本程序时需首先阅读此声明</translation>
     </message>
     <message>
-        <location filename="../qml/together/SplashPage.qml" line="32"/>
-        <source>Your account must be access login on web.</source>
-        <translation type="unfinished">你的账户必须被允许在Web端登录.</translation>
+        <location filename="../qml/together/SplashPage.qml" line="33"/>
+        <source>Your account must be access login on web, and you must to login by scanning QRCode with your another mobile client, and the mobile client should not offline.</source>
+        <translation type="unfinished">你的账户必须被允许在Web端登录, 并且你必须使用其他手机的客户端进行扫描二维码进行登录, 并且该手机客户端不能下线.</translation>
     </message>
     <message>
-        <location filename="../qml/together/SplashPage.qml" line="35"/>
+        <location filename="../qml/together/SplashPage.qml" line="36"/>
+        <source>If shown &apos;301&apos; when you login successful, it means your account can not access Web client.</source>
+        <translation type="unfinished">如果在你登录成功后出现301提示, 则意味着你的账号无法在Web端登录.</translation>
+    </message>
+    <message>
+        <location filename="../qml/together/SplashPage.qml" line="39"/>
         <source>And your account has some problem, I will not assumed liabilities.</source>
         <translation type="unfinished">并且之后你的账号出现问题, 本人不会对此负责.</translation>
     </message>
     <message>
-        <location filename="../qml/together/SplashPage.qml" line="38"/>
+        <location filename="../qml/together/SplashPage.qml" line="42"/>
+        <source>If you are worried about some exceptions on your account, please do not use this application!.</source>
+        <translation type="unfinished">如果你担心会对你的账号造成异常或影响, 请不要使用该程序.</translation>
+    </message>
+    <message>
+        <location filename="../qml/together/SplashPage.qml" line="45"/>
         <source>The application is based on Web API.</source>
         <translation type="unfinished">该程序是基于Web端接口.</translation>
     </message>
     <message>
-        <location filename="../qml/together/SplashPage.qml" line="41"/>
+        <location filename="../qml/together/SplashPage.qml" line="48"/>
         <source>It means not get ID and telphone number of your and your contacts.</source>
         <translation type="unfinished">这意味着不会获取您和您的联系人的ID和电话号等私密信息.</translation>
     </message>
     <message>
-        <location filename="../qml/together/SplashPage.qml" line="44"/>
+        <location filename="../qml/together/SplashPage.qml" line="51"/>
         <source>All your login data is random for this time, and is invalid on next time.</source>
         <translation type="unfinished">所有关于本次用户登录的数据都是随机分配的, 下次会失效.</translation>
     </message>
     <message>
-        <location filename="../qml/together/SplashPage.qml" line="47"/>
+        <location filename="../qml/together/SplashPage.qml" line="54"/>
         <source>Do not show this</source>
         <translation type="unfinished">同意并不再显示</translation>
     </message>
     <message>
-        <location filename="../qml/together/SplashPage.qml" line="48"/>
+        <location filename="../qml/together/SplashPage.qml" line="55"/>
         <source>Accept</source>
         <translation type="unfinished">同意</translation>
     </message>
     <message>
-        <location filename="../qml/together/SplashPage.qml" line="49"/>
+        <location filename="../qml/together/SplashPage.qml" line="56"/>
         <source>Reject</source>
         <translation type="unfinished">拒绝</translation>
     </message>
     <message>
-        <location filename="../qml/together/SplashPage.qml" line="93"/>
+        <location filename="../qml/together/SplashPage.qml" line="100"/>
         <source>Login</source>
         <translation type="unfinished">登录</translation>
     </message>
     <message>
-        <location filename="../qml/together/SplashPage.qml" line="100"/>
+        <location filename="../qml/together/SplashPage.qml" line="107"/>
         <source>Quit</source>
         <translation type="unfinished">退出</translation>
     </message>
@@ -703,14 +755,89 @@
         <translation type="unfinished">版本</translation>
     </message>
     <message>
-        <location filename="../qml/together/main.qml" line="84"/>
+        <location filename="../qml/together/main.qml" line="85"/>
         <source>Notification</source>
         <translation type="unfinished">提醒</translation>
     </message>
     <message>
-        <location filename="../qml/together/main.qml" line="84"/>
+        <location filename="../qml/together/main.qml" line="85"/>
         <source>You have a new message</source>
         <translation type="unfinished">你有一条新消息</translation>
+    </message>
+    <message>
+        <location filename="../qml/together/main.qml" line="163"/>
+        <source>This app is downed. You should not continue to run it.</source>
+        <translation type="unfinished">应用已经下架, 你不应该继续使用该应用.</translation>
+    </message>
+    <message>
+        <location filename="../qml/together/main.qml" line="169"/>
+        <source>This app is not upload to OpenRepos.</source>
+        <translation type="unfinished">应用没有上传至OpenRepos.</translation>
+    </message>
+    <message>
+        <location filename="../qml/together/main.qml" line="180"/>
+        <source>Your app is newest version now</source>
+        <translation type="unfinished">应用已经是最新.</translation>
+    </message>
+    <message>
+        <location filename="../qml/together/main.qml" line="184"/>
+        <source>Your app is newer than OpenRepos! Maybe your app is installed by other ways or other developer, and maybe this version is not upload to OpenRepos by developer now.</source>
+        <translation type="unfinished">应用比OpenRepos的版本新! 可能是你从其他途径或开发者安装, 也可能作者未同步上传至OpenRepos.</translation>
+    </message>
+    <message>
+        <location filename="../qml/together/main.qml" line="188"/>
+        <source>Your app is older than OpenRepos! You need to update version.</source>
+        <translation type="unfinished">有新版本可更新.</translation>
+    </message>
+    <message>
+        <location filename="../qml/together/main.qml" line="194"/>
+        <source>Release</source>
+        <translation type="unfinished">时间</translation>
+    </message>
+    <message>
+        <location filename="../qml/together/main.qml" line="197"/>
+        <source>Developer</source>
+        <translation type="unfinished">作者</translation>
+    </message>
+    <message>
+        <location filename="../qml/together/main.qml" line="200"/>
+        <source>Changelog</source>
+        <translation type="unfinished">更新日志</translation>
+    </message>
+    <message>
+        <location filename="../qml/together/main.qml" line="203"/>
+        <source>Downloads</source>
+        <translation type="unfinished">总下载次数</translation>
+    </message>
+    <message>
+        <location filename="../qml/together/main.qml" line="206"/>
+        <source>Description</source>
+        <translation type="unfinished">描述</translation>
+    </message>
+    <message>
+        <location filename="../qml/together/main.qml" line="210"/>
+        <source>New update</source>
+        <translation type="unfinished">新的更新</translation>
+    </message>
+    <message>
+        <location filename="../qml/together/main.qml" line="213"/>
+        <source>Update</source>
+        <translation type="unfinished">更新</translation>
+    </message>
+    <message>
+        <location filename="../qml/together/main.qml" line="214"/>
+        <source>App detail URL</source>
+        <translation type="unfinished">应用详细地址</translation>
+    </message>
+    <message>
+        <location filename="../qml/together/main.qml" line="214"/>
+        <source>Copy URL</source>
+        <translation type="unfinished">复制地址</translation>
+    </message>
+    <message>
+        <location filename="../qml/together/main.qml" line="159"/>
+        <source>Check update</source>
+        <translation type="unfinished">检查更新</translation>
     </message>
 </context>
 </TS>

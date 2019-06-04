@@ -3,8 +3,8 @@ import com.nokia.meego 1.1
 import "component"
 import "widget"
 import "../js/main.js" as Script
+import "../js/util.js" as Util
 
-// MainPage
 BasePage{
 	id: root;
 
@@ -22,17 +22,24 @@ BasePage{
 
 		function _CheckLogin(nw, r)
 		{
-			if(_UT.GetSetting("show_warning") && !nw)
+			var sw = Util.ParseBoolean(_UT.GetSetting("show_warning"));
+			if(sw && !nw)
 			{
 				obj.dialog = controller._Info(
 					qsTr("Warning"),
 					qsTr("Read this notice before using this application"),
 					[
 						{
-							text: qsTr("Your account must be access login on web."),
+							text: qsTr("Your account must be access login on web, and you must to login by scanning QRCode with your another mobile client, and the mobile client should not offline."),
+						},
+						{
+							text: qsTr("If shown '301' when you login successful, it means your account can not access Web client."),
 						},
 						{
 							text: qsTr("And your account has some problem, I will not assumed liabilities."),
+						},
+						{
+							text: qsTr("If you are worried about some exceptions on your account, please do not use this application!."),
 						},
 						{
 							text: qsTr("The application is based on Web API."),

@@ -4,6 +4,7 @@ Qt.include("network.js");
 Qt.include("api.js");
 Qt.include("util.js");
 Qt.include("database.js");
+Qt.include("openrepos.js");
 
 var _UT;
 var globals;
@@ -121,18 +122,25 @@ function GetLoginState(data, success, fail)
 
 function GetLoginRedirect(data, success, fail)
 {
+	var api = data.url ? data.url : idAPI.REDIRECT;
+	delete data.url;
 	var f = function(message){
 		if(typeof(fail) === "function")
 			fail(message);
 	};
 	var s = function(text){
-		var xml = idAPI.MakeLoginRedirect(text);
-		if(!xml)
+		var xml_data = idAPI.MakeLoginRedirect(text);
+		if(!xml_data)
 		{
 			f("No data");
 			return;
 		}
-		var obj = _UT.XML_Parse(xml);
+		if(xml_data.type === "URL")
+		{
+			f("Redirect api version is wrong");
+			return;
+		}
+		var obj = _UT.XML_Parse(xml_data.data);
 		if(!obj || obj.children[0].children !== "0")
 		{
 			f("Get data error");
@@ -140,7 +148,7 @@ function GetLoginRedirect(data, success, fail)
 		}
 		var unused = ["ret", "message", "isgrayscale"];
 		var d = {
-			url: idAPI.REDIRECT,
+			url: api,
 		};
 		for(var i in obj.children)
 		{
@@ -153,7 +161,7 @@ function GetLoginRedirect(data, success, fail)
 		if(typeof(success) === "function") success(d);
 	}
 	var opt = data;
-	Request(idAPI.REDIRECT, "GET", opt, s, f, "TEXT");
+	Request(api, "GET", opt, s, f, "TEXT");
 }
 
 // HomePage
@@ -318,25 +326,29 @@ function GetSendData(data, success, fail)
 		{
 			return;
 		}
-		var d = new Object();
-		if(!idAPI.MakeSendData(json, d))
+		if(typeof(success) === "function")
 		{
-			f("Make send data fail");
-			return;
+			var d = new Object();
+			if(!idAPI.MakeSendData(json, d))
+			{
+				f("Make send data fail");
+				return;
+			}
+
+			d.msg_type = data.type;
+			d.from = globals.uname;
+			d.to = data.uname;
+			d.content = data.content;
+			d.avatar = "";
+			d.name = "";
+			d.ts = Date.now() / 1000;
+			d.ts_str= MakeTimestamp(d.ts);
+			var c = MakeSessionId(d.from, d.to);
+			d.session = c.session;
+			d.type = c.type;
+			d.group = idAPI.IsGroupUname(d.to) ? d.to : false;
+			success(d);
 		}
-		d.msg_type = data.type;
-		d.from = globals.uname;
-		d.to = data.uname;
-		d.content = data.content;
-		d.avatar = "";
-		d.name = "";
-		d.ts = Date.now() / 1000;
-		d.ts_str= MakeTimestamp(d.ts);
-		var c = MakeSessionId(d.from, d.to);
-		d.session = c.session;
-		d.type = c.type;
-		d.group = idAPI.IsGroupUname(d.to) ? d.to : false;
-		if(typeof(success) === "function") success(d);
 	}
 	var id = "" + Date.now() + Random(1000, 9999);
 	var get_opt = {
@@ -433,6 +445,27 @@ function GetSyncData(data, success, fail)
 	opt.rr = parseInt(-Date.now() / 1000);
 	Request(idAPI.SYNC + "?" + new idNetwork().MakeParams(get_opt), "POST", JSON.stringify(opt), s, f);
 }
+
+function SyncOpenRepos(data, success, fail)
+{
+	var f = function(message){
+		if(typeof(fail) === "function")
+			fail(message);
+	};
+	var s = function(json){
+		var a = new Object();
+		var res = idOpenRepos.LoadApplication(json, a);
+		if(typeof(res) === "string")
+		{
+			f(res);
+			return;
+		}
+		if(typeof(success) === "function") success(a);
+	};
+
+	Request(idOpenRepos.MakeAPIUrl(idOpenRepos.APP_DETAIL.arg(data.appid)), "GET", undefined, s, f);
+}
+
 
 
 // other

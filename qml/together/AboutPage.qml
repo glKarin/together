@@ -44,7 +44,7 @@ BasePage {
 		clip: true;
 		Column{
 			id: mainlayout;
-			anchors.verticalCenter: parent.verticalCenter;
+			anchors.horizontalCenter: parent.horizontalCenter;
 			width: parent.width;
 			spacing: constants._iSpacingXXL;
 			TextListWidget{
@@ -80,15 +80,24 @@ BasePage {
 					},
 				]
 			}
+			Image{
+				anchors.horizontalCenter: parent.horizontalCenter;
+				cache: false;
+				smooth: true;
+				source: _UT.Get("ICON_PATH");
+				MouseArea{
+					anchors.fill: parent;
+					onDoubleClicked: {
+						app._Beyond_Forever_Together();
+					}
+				}
+			}
 			TextListWidget{
 				width: parent.width;
 				sTitle: qsTr("About");
 				iPixelSize: constants._iFontXL;
 				onLinkClicked: {
 					eval(link);
-				}
-				onClicked: {
-					app._Beyond_Forever_Together();
 				}
 				aTexts: [
 					{

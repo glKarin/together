@@ -10,7 +10,7 @@ BasePage {
 
 	sTitle: qsTr("User");
 	objectName: "idLoginPage";
-	menus: pageStack.depth === 1 ? mainmenu : null;
+	menus: mainmenu;
 
 	function _Init()
 	{
@@ -95,6 +95,7 @@ BasePage {
 				{
 					var params = _UT.ParseUrl(data.redirect_uri, "PARAMS");
 				obj.loginState = 5;
+				params.url = _UT.ParseUrl(data.redirect_uri, "SCHEME") + "://" + _UT.ParseUrl(data.redirect_uri, "HOST") + _UT.ParseUrl(data.redirect_uri, "PATH");
 					obj._GetLoginRedirect(params);
 				}
 				else if(code == 408) // timeout
@@ -265,6 +266,12 @@ BasePage {
 	ContextMenu{
 		id: mainmenu;
 		MenuLayout {
+			MenuItem{
+				text: qsTr("Check update");
+				onClicked: {
+					appobj._CheckUpdate(true);
+				}
+			}
 			MenuItem{
 				text: qsTr("Quit");
 				onClicked: {

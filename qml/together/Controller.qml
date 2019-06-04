@@ -15,7 +15,7 @@ QtObject {
 		if(globals._IsValid()) return true;
 		else
 		{
-			_OpenLoginPage();
+			_OpenLoginPage(true);
 			return false;
 		}
 	}

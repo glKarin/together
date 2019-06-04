@@ -3,7 +3,7 @@ import com.nokia.meego 1.1
 import com.nokia.extras 1.1
 import "component"
 import "../js/main.js" as Script
-import "../js/main.js" as Util
+import "../js/util.js" as Util
 
 PageStackWindow {
 	id: app;
@@ -59,6 +59,7 @@ PageStackWindow {
 	QtObject{
 		id: appobj;
 		property bool __syncLock: false;
+		property variant dialog: null;
 
 		function _GetCheckData()
 		{
@@ -133,6 +134,108 @@ PageStackWindow {
 		{
 			__syncLock = false;
 		}
+
+		function _Online(msg)
+		{
+			function f(err)
+			{
+				console.log(err);
+			}
+			var d = {
+				type: 1,
+				content: msg ? msg : "",
+				uname: "filehelper", // weixin filehelper: weixintuandui / wenjianchuanshuzhushou, uname is fixed
+			};
+
+			Script.GetSendData(d, undefined, f);
+		}
+
+		function _CheckUpdate(showmsg)
+		{
+			var showmsg_f = function(msg){
+				if(showmsg) controller._ShowMessage(msg);
+				else console.log(msg);
+			};
+			showmsg_f(qsTr("Check update"));
+			var s = function(data){
+				if(!data.package_name || !data.package_version) // downed
+				{
+					controller._ShowMessage(qsTr("This app is downed. You should not continue to run it."));
+					Qt.quit();
+					return;
+				}
+				if(data.package_name !== _UT.Get("PKG"))
+				{
+					controller._ShowMessage(qsTr("This app is not upload to OpenRepos."));
+					return;
+				}
+
+                var v = _UT.Get("VER");
+                //v = "2014.0.2harmattan1";
+				var o = data.package_version.substring(0, v.length);
+				var u = o.localeCompare(v);
+                console.log(v, o, u);
+				if(u === 0)
+				{
+					showmsg_f(qsTr("Your app is newest version now"));
+				}
+                else if(u < 0)
+				{
+					showmsg_f(qsTr("Your app is newer than OpenRepos! Maybe your app is installed by other ways or other developer, and maybe this version is not upload to OpenRepos by developer now."));
+				}
+				else // update
+				{
+					showmsg_f(qsTr("Your app is older than OpenRepos! You need to update version."));
+					var texts = [
+						{
+							text: "<img src='" + data.icon + "'/>",
+						},
+						{
+							text: qsTr("Release") + ": " + Util.FormatDateTime(data.updated),
+						},
+						{
+							text: qsTr("Developer") + ": " + "<a href='controller._OpenUrl(\"" + Script.idOpenRepos.MakeUserHomeUrl(data.user_name) + "\", 1);'>" + data.user_name + "</a>",
+						},
+						{
+							text: qsTr("Changelog") + ": " + data.changelog,
+						},
+						{
+							text: qsTr("Downloads") + ": " + data.download,
+						},
+						{
+							text: qsTr("Description") + ": " + data.body,
+						},
+					];
+					appobj.dialog = controller._Info(
+						qsTr("New update"),
+						data.package_version,
+						texts,
+						"<a href='controller._OpenUrl(\"" + data._url + "\", 1);'>" + qsTr("Update") + "</a>"
+						+ " <a href='controller._CopyToClipboard(\"" + data._url + "\", \"" + qsTr("App detail URL") + "\");'>" + qsTr("Copy URL") + "</a>",
+						function(link){
+							if(appobj.dialog) appobj.dialog.accept();
+							eval(link);
+							appobj.dialog = null;
+						},
+						undefined,
+						function(link){
+							if(appobj.dialog) appobj.dialog.accept();
+							eval(link);
+							appobj.dialog = null;
+						}
+					);
+				}
+			};
+			var f = function(err){
+				controller._ShowMessage(err);
+			};
+
+			var d = {
+				appid: _UT.Get("APPID"),
+			};
+
+			Script.SyncOpenRepos(d, s, f);
+		}
 	}
 
 	Timer {
@@ -142,6 +245,16 @@ PageStackWindow {
 		running: globals.logined;
 		onTriggered: {
 			appobj._GetCheckData();
+		}
+	}
+
+	Timer {
+		id: onlinetimer;
+		interval: settings.iOnlineBackground * 60 * 1000;
+		repeat: true;
+		running: globals.logined && settings.bOnlineCheck;
+		onTriggered: {
+			appobj._Online();
 		}
 	}
 
@@ -198,6 +311,10 @@ PageStackWindow {
 			g: globals,
 		});
 
+		if(settings.bCheckUpdate)
+		{
+			appobj._CheckUpdate();
+		}
 		globals.deviceId = Script.idAPI.MakeDeveceID();
 		//mainpage._Init();
 	}

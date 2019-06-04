@@ -1,3 +1,17 @@
+together (2014.0.5harmattan1-webwechat) unstable; urgency=low
+
+  * Add update ckecking by OpenRepos.net.
+  * Add repeat to send empty message to filehelper for keeping connection(TESTING).
+  * Some fixes.
+
+ -- karin <beyondk2000@gmail.com>  Wed, 5 Jun 2019 21:00:26 +0800
+
+together (2014.0.3harmattan1-webwechat) unstable; urgency=low
+
+  * Some fixes.
+
+ -- karin <beyondk2000@gmail.com>  Mon, 3 Jun 2019 20:26:26 +0800
+
 together (2014.0.2harmattan1-webwechat) unstable; urgency=low
 
   * Initial Release.
@@ -8,4 +22,4 @@ together (0.0.1harmattan1) unstable; urgency=low
 
   * Initial Release.
 
- -- karin <beyondk2000@gmail.com>  Mon, 27 May 2019 11:14:54 +0800
+ -- karin <beyondk2000@gmail.com>  Mon, 27 May 2019 11:14:26 +0800

@@ -19,6 +19,9 @@ QtObject {
 	property bool bFullscreen: _UT.GetSetting("generals/fullscreen");
 	onBFullscreenChanged: _UT.SetSetting("generals/fullscreen", bFullscreen);
 
+	property bool bCheckUpdate: _UT.GetSetting("generals/check_update");
+	onBCheckUpdateChanged: _UT.SetSetting("generals/check_update", bCheckUpdate);
+
 
 
 	property int iSyncInterval: _UT.GetSetting("chat/sync_interval");
@@ -29,6 +32,12 @@ QtObject {
 
 	property int iSyncBackground: _UT.GetSetting("chat/sync_background");
 	onISyncBackgroundChanged: _UT.SetSetting("chat/sync_background", iSyncBackground);
+
+	property int iOnlineBackground: _UT.GetSetting("chat/online_background");
+	onIOnlineBackgroundChanged: _UT.SetSetting("chat/online_background", iOnlineBackground);
+
+	property bool bOnlineCheck: _UT.GetSetting("chat/online_check");
+	onBOnlineCheckChanged: _UT.SetSetting("chat/online_check", bOnlineCheck);
 
 
 
@@ -51,10 +60,13 @@ QtObject {
 		bNightMode = _UT.GetSetting("generals/night_mode");
 		iDefaultBrowser = _UT.GetSetting("generals/default_browser");
 		bFullscreen = _UT.GetSetting("generals/fullscreen");
+		bCheckUpdate = _UT.GetSetting("generals/check_update");
 
 		iSyncInterval = _UT.GetSetting("chat/sync_interval");
 		eRunMode = _UT.GetSetting("generals/run_mode");
 		iSyncBackground = _UT.GetSetting("chat/sync_background");
+		iOnlineBackground = _UT.GetSetting("chat/online_background");
+		bOnlineCheck = _UT.GetSetting("chat/online_check");
 
 		bBrowserHelper = _UT.GetSetting("browser/helper");
 		bBrowserDblZoom = _UT.GetSetting("browser/dbl_zoom");

@@ -6,7 +6,7 @@
 #define ID_APP "Together"
 #define ID_NAME QObject::tr("Together")
 #define ID_PKG "together"
-#define ID_VER "2014.0.3harmattan1"
+#define ID_VER "2014.0.5harmattan1"
 #define ID_CODE "paradise"
 #define ID_DEV "karin"
 #define ID_RELEASE "20140405"
@@ -19,6 +19,7 @@
 #define ID_TMO "http://talk.maemo.org/member.php?u=70254"
 #define ID_DESC QObject::tr("Together is a simple ****** client, based on Web-API.")
 #define ID_BUID "beyondk2000"
+#define ID_APPID "10672"
 #ifdef _HARMATTAN
 #define ID_PLATFORM "MeeGo 1.2 Harmattan"
 #else

@@ -54,6 +54,7 @@ BasePage {
 			nightMode.checked = settings.bNightMode;
 			defaultBrowser.vCurrentValue = settings.iDefaultBrowser;
 			fullscreen.checked = settings.bFullscreen;
+			checkUpdate.checked = settings.bCheckUpdate;
 
 			/*
 			browserHelper = settings.bBrowserHelper;
@@ -64,6 +65,8 @@ BasePage {
 			syncInterval.value = settings.iSyncInterval;
 			runMode.vCurrentValue = settings.eRunMode;
 			syncBackground.value = settings.iSyncBackground;
+			onlineBackground.value = settings.iOnlineBackground;
+			onlineCheck.checked = settings.bOnlineCheck;
 		}
 	}
 
@@ -150,6 +153,17 @@ BasePage {
 						settings.iDefaultBrowser = value;
 					}
 				}
+
+				SwitcherWidget{
+					id: checkUpdate;
+					iMargins: constants._iSpacingLarge;
+					sText: qsTr("Check update on start");
+					checked: settings.bCheckUpdate;
+					onCheckedChanged: {
+						settings.bCheckUpdate = checked;
+					}
+				}
+
 
 				/*
 				SwitcherWidget{
@@ -266,6 +280,35 @@ BasePage {
 					value: settings.iSyncBackground;
 					onValueChanged /*onMove*/: {
 						settings.iSyncBackground = value;
+					}
+				}
+
+				SwitcherWidget{
+					id: onlineCheck;
+					iMargins: constants._iSpacingLarge;
+					sText: qsTr("Repeat to send empty message to filehelper");
+					checked: settings.bOnlineCheck;
+					onCheckedChanged: {
+						settings.bOnlineCheck = checked;
+					}
+				}
+
+				SliderWidget{
+					id: onlineBackground;
+					visible: settings.bOnlineCheck;
+					iMargins: constants._iSpacingLarge;
+					sText: qsTr("Send interval");
+					iPrecision: 0;
+					minimumValue: 1;
+					maximumValue: 20;
+					stepSize: 1;
+					bAutoLabel: false;
+					sCurText: "" + value + qsTr("Min");
+					sMinText: "" + minimumValue + qsTr("Min");
+					sMaxText: "" + maximumValue + qsTr("Min");
+					value: settings.iOnlineBackground;
+					onValueChanged /*onMove*/: {
+						settings.iOnlineBackground = value;
 					}
 				}
 

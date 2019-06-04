@@ -24,6 +24,28 @@ function MakeTimestamp(ts)
 	}
 }
 
+function MakeRedirectUrl(text)
+{
+	if(text.indexOf("<script>") === 0) // redirect
+	{
+		var spattern = /^\<script\>(\S+)\<\/script\>$/;
+		var sm = text.match(spattern);
+		if(sm)
+		{
+			var window = new Object();
+			window.location = {
+				href: "",
+			};
+			eval(sm[1]);
+			return window.location.href;
+		}
+		else
+			return false;
+	}
+	else
+		return false;
+}
+
 var idWebAPI = {
 	APPID: "wx782c26e4c19acffb",
 
@@ -31,6 +53,7 @@ var idWebAPI = {
 	QRCODE: "https://login.wx.qq.com/qrcode/%1",
 	LOGIN: "https://login.wx.qq.com/cgi-bin/mmwebwx-bin/login",
 	REDIRECT: "https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxnewloginpage",
+	REDIRECT2: "https://wx2.qq.com/cgi-bin/mmwebwx-bin/webwxnewloginpage",
 	INIT: "https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxinit",
 	CONTACT: "https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxgetcontact",
 	CHECK: "https://webpush.wx.qq.com/cgi-bin/mmwebwx-bin/synccheck",
@@ -120,17 +143,30 @@ var idWebAPI = {
 			return false;
 		try
 		{
-			var pattern = /^(\S)+/g;
-			var m = text.match(pattern);
-			if(m)
+			var rd = MakeRedirectUrl(text);
+			if(rd)
 			{
-				var xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" + m[0];
-				return xml;
+				return {
+					type: "URL",
+					data: rd,
+				};
 			}
 			else
-				return false;
+			{
+				var pattern = /^(\S+)/;
+				var m = text.match(pattern);
+				if(m)
+				{
+					var xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" + m[0];
+					return {
+						type: "XML",
+						data: xml,
+					};
+				}
+				else
+					return false;
+			}
 		}
-		
 		catch(e)
 		{
 			__JSON_Print(e);
