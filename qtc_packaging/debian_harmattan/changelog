@@ -1,3 +1,13 @@
+together (2014.0.6harmattan1-webwechat) unstable; urgency=low
+
+  * Fixed some user(redirect to wx2.qq.com) login.
+  * Add subscribe and article.
+  * Add repeat to send empty message to filehelper for keeping connection(TESTING).
+  * Add update ckecking by OpenRepos.net.
+  * Some fixes.
+
+ -- karin <beyondk2000@gmail.com>  Thu, 6 Jun 2019 20:47:26 +0800
+
 together (2014.0.5harmattan1-webwechat) unstable; urgency=low
 
   * Add update ckecking by OpenRepos.net.

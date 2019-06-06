@@ -3,6 +3,7 @@ import com.nokia.meego 1.1
 import "component"
 import "widget"
 import "../js/main.js" as Script
+import "../js/util.js" as Util
 
 // MainPage
 BasePage{
@@ -22,7 +23,7 @@ BasePage{
 
 	function _Init()
 	{
-		pathview.currentIndex = 2;
+		pathview.currentIndex = 3;
 		obj._GetInitData(true);
 	}
 
@@ -37,11 +38,13 @@ BasePage{
 			root.bBusy = true;
 			appobj._Reset();
 			sessionmodel._Reset();
+			subscribemodel._Reset();
 			var s = function(data){
 				globals._SetUserInfo(data.userinfo);
 				globals.synckey = data.synckey;
 				globals._Dump();
 				sessionmodel._SetData(data.data);
+				subscribemodel._SetData(data.subscribe_data);
 				root.bBusy = false;
 			};
 			var f = function(err){
@@ -59,6 +62,9 @@ BasePage{
 		model: ListModel{
 			ListElement{
 				page: "HomeItem.qml";
+			}
+			ListElement{
+				page: "SubscribeItem.qml";
 			}
 			ListElement{
 				page: "ContactItem.qml";
@@ -108,7 +114,7 @@ BasePage{
 			startX: -1 * pathview.width + pathview.width / 2;
 			startY: pathview.height / 2;
 			PathLine{
-				x: 2 * pathview.width + pathview.width / 2;
+				x: 3 * pathview.width + pathview.width / 2;
 				y: pathview.height / 2;
 			}
 		}

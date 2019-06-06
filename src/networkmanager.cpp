@@ -106,6 +106,11 @@ void idNetworkAccessManager::SetRequestHeaders(const QVariantList &headers)
     }
 }
 
+void idNetworkAccessManager::SetRequestHeader(const QString &k, const QString &v)
+{
+	oHeaders.AddHeader(k, v);
+}
+
 
 
 
@@ -132,7 +137,13 @@ QNetworkAccessManager *	idDeclarativeNetworkAccessManagerFactory::create(QObject
 
 
 // idRequestHeaders
-bool idRequestHeaders::B_Dbg = false;
+bool idRequestHeaders::B_Dbg = 
+#ifdef _DBG
+true
+#else
+false
+#endif
+;
 
 idRequestHeaders::idRequestHeaders()
 {
@@ -313,7 +324,7 @@ QByteArray idNetworkCookieJar::DumpCookie(const QStringList &domain) const
 	QList<QNetworkCookie> cookie = allCookies();
 	ID_CONST_FOREACH(QList<QNetworkCookie>, cookie)
 	{
-		if (!itor->isSessionCookie())
+		if ( 1 || !itor->isSessionCookie())
 		{
 			if(domain.isEmpty())
 			{

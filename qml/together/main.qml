@@ -56,6 +56,10 @@ PageStackWindow {
 		id: sessionmodel; // session model
 	}
 
+	SubscribeModel{
+		id: subscribemodel;
+	}
+
 	QtObject{
 		id: appobj;
 		property bool __syncLock: false;
@@ -158,10 +162,9 @@ PageStackWindow {
 			};
 			showmsg_f(qsTr("Check update"));
 			var s = function(data){
-				if(!data.package_name || !data.package_version) // downed
+				if(!data.package_name && !data.package_version) // downed
 				{
-					controller._ShowMessage(qsTr("This app is downed. You should not continue to run it."));
-					Qt.quit();
+					controller._ShowMessage(qsTr("This app is downed. You should not continue to run it. Please contact to author for more."));
 					return;
 				}
 				if(data.package_name !== _UT.Get("PKG"))
@@ -170,16 +173,16 @@ PageStackWindow {
 					return;
 				}
 
-                var v = _UT.Get("VER");
-                //v = "2014.0.2harmattan1";
+				var v = _UT.Get("VER");
+				//v = "2014.0.3harmattan1";
 				var o = data.package_version.substring(0, v.length);
 				var u = o.localeCompare(v);
-                console.log(v, o, u);
+				console.log(v, o, u);
 				if(u === 0)
 				{
 					showmsg_f(qsTr("Your app is newest version now"));
 				}
-                else if(u < 0)
+				else if(u < 0)
 				{
 					showmsg_f(qsTr("Your app is newer than OpenRepos! Maybe your app is installed by other ways or other developer, and maybe this version is not upload to OpenRepos by developer now."));
 				}

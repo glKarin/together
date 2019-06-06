@@ -9,7 +9,7 @@ Item{
 	id: root;
 
 	property bool _inited: false;
-	property int _index: 0;
+	property int _index: 1;
 	objectName: "idContactItem";
 
 	function _Init()
@@ -19,9 +19,6 @@ Item{
 
 	QtObject{
 		id: obj;
-		property string qrcode;
-		property int state: 0;
-		property string reqName;
 
 		function _GetMyContact()
 		{

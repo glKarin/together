@@ -1,10 +1,33 @@
 .pragma library
 
-Qt.include("network.js");
-Qt.include("api.js");
-Qt.include("util.js");
-Qt.include("database.js");
-Qt.include("openrepos.js");
+function IncludeJS(url, cb)
+{
+	var res = Qt.include(url, cb);
+	var st = res["status"];
+	switch(st)
+	{
+		case 1:
+		 console.log("[DEBUG]: js file: '%1' is including.".arg(url));
+		 break;
+		case 2:
+		 console.log("[ERROR]: js file: '%1' include fail on network.".arg(url));
+		 break;
+		case 3:
+		 console.log("[ERROR]: js file: '%1' has error.".arg(url));
+		 break;
+		case 0:
+		default:
+		 console.log("[DEBUG]: js file: '%1' include successful.".arg(url));
+		 break;
+	}
+	return st === 0;
+}
+
+IncludeJS("network.js");
+IncludeJS("api.js");
+IncludeJS("util.js");
+IncludeJS("database.js");
+IncludeJS("openrepos.js");
 
 var _UT;
 var globals;
@@ -14,6 +37,12 @@ function Init(object)
 {
 	_UT = object.u;
 	globals = object.g;
+}
+
+function Reset()
+{
+	idAPI_HOST = "";
+	_UT.SetRequestHeader("Referer", "https://" + idAPI.MakeHost() + "/");
 }
 
 function Request(url, method, args, success, fail, type)
@@ -114,6 +143,7 @@ function GetLoginState(data, success, fail)
 		uuid: data.uuid,
 		tip: data.state,
 		_: Date.now(),
+			//r: -
 	};
 	if(data.icon !== undefined)
 		opt.loginicon = data.icon;
@@ -122,8 +152,11 @@ function GetLoginState(data, success, fail)
 
 function GetLoginRedirect(data, success, fail)
 {
-	var api = data.url ? data.url : idAPI.REDIRECT;
-	delete data.url;
+	// set host
+	idAPI_HOST = idAPI.GetHost(data.HOST);
+	var api = data.SCHEME + "://" + data.HOST + data.PATH;
+	_UT.SetRequestHeader("Referer", "https://" + idAPI.MakeHost(idAPI_HOST) + "/");
+
 	var f = function(message){
 		if(typeof(fail) === "function")
 			fail(message);
@@ -160,7 +193,7 @@ function GetLoginRedirect(data, success, fail)
 
 		if(typeof(success) === "function") success(d);
 	}
-	var opt = data;
+	var opt = data.PARAMS;
 	Request(api, "GET", opt, s, f, "TEXT");
 }
 
@@ -197,10 +230,13 @@ function GetInitData(data, success, fail)
 			var c = MakeSessionId(userinfo.uname, item.uname);
 			item.session = c.session;
 		}
+		var subscribes = [];
+		idAPI.MakeHomeArticle(json, subscribes);
 		var d = {
 			userinfo: userinfo,
 			synckey: k,
 			data: contacts,
+			subscribe_data: subscribes,
 		};
 		if(typeof(success) === "function") success(d);
 	}
@@ -209,7 +245,7 @@ function GetInitData(data, success, fail)
 		pass_ticket: globals.pass_ticket,
 		r: Date.now(),
 	};
-	Request(idAPI.INIT + "?" + new idNetwork().MakeParams(get_opt), "POST", opt, s, f);
+	Request(idAPI.MakeAPI(idAPI.INIT) + "?" + new idNetwork().MakeParams(get_opt), "POST", opt, s, f);
 }
 
 // ContactPage
@@ -256,7 +292,7 @@ function GetMyContact(data, success, fail)
 		skey: globals.skey,
 		r: Date.now(),
 	};
-	Request(idAPI.CONTACT + "?" + new idNetwork().MakeParams(get_opt), "POST", opt, s, f);
+	Request(idAPI.MakeAPI(idAPI.CONTACT) + "?" + new idNetwork().MakeParams(get_opt), "POST", opt, s, f);
 }
 
 // ProfilePage
@@ -305,7 +341,7 @@ function GetUserContact(data, success, fail)
 		pass_ticket: globals.pass_ticket,
 		type: "ex",
 	};
-	Request(idAPI.BATCH + "?" + new idNetwork().MakeParams(get_opt), "POST", JSON.stringify(opt), s, f);
+	Request(idAPI.MakeAPI(idAPI.BATCH) + "?" + new idNetwork().MakeParams(get_opt), "POST", JSON.stringify(opt), s, f);
 }
 
 // SessionPage
@@ -365,7 +401,7 @@ function GetSendData(data, success, fail)
 		MedieId: data.media || "",
 	};
 	opt.Scene = 0;
-	Request(idAPI.SEND + "?" + new idNetwork().MakeParams(get_opt), "POST", JSON.stringify(opt), s, f);
+	Request(idAPI.MakeAPI(idAPI.SEND) + "?" + new idNetwork().MakeParams(get_opt), "POST", JSON.stringify(opt), s, f);
 }
 
 
@@ -407,7 +443,7 @@ function GetCheckData(data, success, fail)
 		r: Date.now(),
 		_: Date.now(),
 	};
-	Request(idAPI.CHECK + "?" + new idNetwork().MakeParams(opt), "GET", undefined, s, f, "TEXT");
+	Request(idAPI.MakeAPI(idAPI.CHECK) + "?" + new idNetwork().MakeParams(opt), "GET", undefined, s, f, "TEXT");
 }
 
 function GetSyncData(data, success, fail)
@@ -443,8 +479,36 @@ function GetSyncData(data, success, fail)
 	var opt = globals._MakeBaseRequest();
 	opt.SyncKey = globals.synckey;
 	opt.rr = parseInt(-Date.now() / 1000);
-	Request(idAPI.SYNC + "?" + new idNetwork().MakeParams(get_opt), "POST", JSON.stringify(opt), s, f);
+	Request(idAPI.MakeAPI(idAPI.SYNC) + "?" + new idNetwork().MakeParams(get_opt), "POST", JSON.stringify(opt), s, f);
 }
+
+function GetLogout(data, success, fail)
+{
+	var f = function(message){
+		if(typeof(fail) === "function")
+			fail(message);
+	};
+	if(!globals._IsValid())
+	{
+		f("Not login");
+		return;
+	}
+	var s = function(text){
+		if(typeof(success) === "function") success();
+	}
+	var get_opt = {
+		redirect: 1,
+		type: 1,
+		skey: globals.skey,
+	};
+	var opt = {
+		sid: globals.wxsid,
+		uin: globals.wxuin,
+	};
+	Request(idAPI.MakeAPI(idAPI.LOGOUT) + "?" + new idNetwork().MakeParams(get_opt), "POST", opt, s, f, "TEXT");
+}
+
+
 
 function SyncOpenRepos(data, success, fail)
 {

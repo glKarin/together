@@ -56,11 +56,9 @@ BasePage {
 			fullscreen.checked = settings.bFullscreen;
 			checkUpdate.checked = settings.bCheckUpdate;
 
-			/*
 			browserHelper = settings.bBrowserHelper;
 			browserDblZoom = settings.bBrowserDblZoom;
 			browserLoadImage = settings.bBrowserLoadImage;
-			*/
 
 			syncInterval.value = settings.iSyncInterval;
 			runMode.vCurrentValue = settings.eRunMode;
@@ -165,7 +163,6 @@ BasePage {
 				}
 
 
-				/*
 				SwitcherWidget{
 					id: browserHelper;
 					iMargins: constants._iSpacingLarge;
@@ -195,7 +192,6 @@ BasePage {
 						settings.bBrowserDblZoom = checked;
 					}
 				}
-				*/
 			}
 		}
 		ScrollDecorator{
@@ -290,6 +286,14 @@ BasePage {
 					checked: settings.bOnlineCheck;
 					onCheckedChanged: {
 						settings.bOnlineCheck = checked;
+						if(settings.bOnlineCheck)
+						{
+							controller._ShowMessage(qsTr("Repeat to send message for keeping alive, and empty message will not send to session. Do not set a too short interval."));
+						}
+						else
+						{
+							controller._ShowMessage(qsTr("Open this can keep account alive."));
+						}
 					}
 				}
 

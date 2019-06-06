@@ -8,7 +8,7 @@ ContextMenu{
 
 	MenuLayout {
 		MenuItem{
-			property int index: 2;
+			property int index: 3;
 			text: qsTr("Home");
 			enabled: root.currentTab != index;
 			onClicked: {
@@ -17,7 +17,7 @@ ContextMenu{
 		}
 		MenuItem{
 			property int index: 0;
-			text: qsTr("Contacts");
+			text: qsTr("Subscribe");
 			enabled: root.currentTab != index;
 			onClicked: {
 				root.showTab(index);
@@ -25,6 +25,14 @@ ContextMenu{
 		}
 		MenuItem{
 			property int index: 1;
+			text: qsTr("Contacts");
+			enabled: root.currentTab != index;
+			onClicked: {
+				root.showTab(index);
+			}
+		}
+		MenuItem{
+			property int index: 2;
 			text: qsTr("Profile");
 			enabled: root.currentTab != index;
 			onClicked: {

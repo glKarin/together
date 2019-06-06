@@ -9,7 +9,7 @@ Item{
 	id: root;
 
 	property bool _inited: false;
-	property int _index: 1;
+	property int _index: 2;
 	objectName: "idProfileItem";
 
 	function _Init()
@@ -115,6 +115,13 @@ Item{
 			width: parent.width;
 			clip: true;
 			spacing: constants._iSpacingMedium;
+			Button{
+				anchors.horizontalCenter: parent.horizontalCenter;
+				text: qsTr("Logout");
+				onClicked: {
+					globals._Login();
+				}
+			}
 			Button{
 				anchors.horizontalCenter: parent.horizontalCenter;
 				text: qsTr("Check update");

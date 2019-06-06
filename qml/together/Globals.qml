@@ -1,4 +1,5 @@
 import QtQuick 1.1
+import "../js/main.js" as Script
 
 QtObject{
 	id: root;
@@ -38,82 +39,82 @@ QtObject{
 		var Login_Keys = ["skey", "wxsid", "wxuin", "pass_ticket",
 		"webwx_data_ticket", "webwx_auth_ticket",
 		"deviceId",
-		];
-		for(var i in Login_Keys)
-		{
-			data.login_info[Login_Keys[i]] = root[Login_Keys[i]];
-		}
-
-		var User_Keys = [
-		"uid", "uname", "nickname", "sex", "avatar", "signature",
-		];
-		for(var i in User_Keys)
-		{
-			data.user_info[User_Keys[i]] = root[User_Keys[i]];
-		}
-
-		_PIPELINE.SetLoginData(data);
+	];
+	for(var i in Login_Keys)
+	{
+		data.login_info[Login_Keys[i]] = root[Login_Keys[i]];
 	}
 
-	function _Restore()
-	{
-		var data = _PIPELINE.GetLoginData();
-		if(!data) return;
-
-		var Login_Keys = ["skey", "wxsid", "wxuin", "pass_ticket",
-		"webwx_data_ticket", "webwx_auth_ticket",
-		"deviceId",
-		];
-		for(var i in Login_Keys)
-		{
-			root[Login_Keys[i]] = data.login_info[Login_Keys[i]];
-		}
-
-		var User_Keys = [
+	var User_Keys = [
 		"uid", "uname", "nickname", "sex", "avatar", "signature",
-		];
-		for(var i in User_Keys)
-		{
-			root[User_Keys[i]] = data.user_info[User_Keys[i]];
-		}
+	];
+	for(var i in User_Keys)
+	{
+		data.user_info[User_Keys[i]] = root[User_Keys[i]];
+	}
 
-		logined = _IsValid();
+	_PIPELINE.SetLoginData(data);
+}
+
+function _Restore()
+{
+	var data = _PIPELINE.GetLoginData();
+	if(!data) return;
+
+	var Login_Keys = ["skey", "wxsid", "wxuin", "pass_ticket",
+	"webwx_data_ticket", "webwx_auth_ticket",
+	"deviceId",
+];
+for(var i in Login_Keys)
+{
+	root[Login_Keys[i]] = data.login_info[Login_Keys[i]];
+}
+
+var User_Keys = [
+	"uid", "uname", "nickname", "sex", "avatar", "signature",
+];
+for(var i in User_Keys)
+{
+	root[User_Keys[i]] = data.user_info[User_Keys[i]];
+}
+
+logined = _IsValid();
 	}
 
 	function _SetLoginData(data)
 	{
 		var Keys = ["skey", "wxsid", "wxuin", "pass_ticket",
-			"webwx_data_ticket", "webwx_auth_ticket"
-		];
-		for(var i in Keys)
-		{
-			root[Keys[i]] = data[Keys[i]];
-		}
-
-		logined = _IsValid();
+		"webwx_data_ticket", "webwx_auth_ticket"
+	];
+	for(var i in Keys)
+	{
+		root[Keys[i]] = data[Keys[i]];
 	}
 
-	function _SetUserInfo(data)
-	{
-		var Keys = [
-			"uid", "uname", "nickname", "sex", "avatar", "signature"
-		];
-		for(var i in Keys)
-		{
-			root[Keys[i]] = data[Keys[i]];
-		}
-	}
+	logined = _IsValid();
+}
 
-	function _IsValid()
+function _SetUserInfo(data)
+{
+	var Keys = [
+		"uid", "uname", "nickname", "sex", "avatar", "signature"
+	];
+	for(var i in Keys)
 	{
-		var Keys = ["skey", "wxsid", "wxuin", "pass_ticket",
-			"webwx_data_ticket", "webwx_auth_ticket"
-		];
-		for(var i in Keys)
-		{
-			if(!root[Keys[i]]) return false;
-		}
-		return true;
+		root[Keys[i]] = data[Keys[i]];
+	}
+}
+
+function _IsValid()
+{
+	var Keys = ["skey", "wxsid", "wxuin", "pass_ticket",
+	"webwx_data_ticket", "webwx_auth_ticket"
+];
+for(var i in Keys)
+{
+	if(!root[Keys[i]]) return false;
+}
+return true;
 	}
 
 	function _GetSexName(s)
@@ -162,13 +163,14 @@ QtObject{
 
 	function _Logout()
 	{
-		logined = false;
-		appobj._Reset();
+		var s = function(){
+			logined = false;
+			appobj._Reset();
 
-		var String_Keys = ["skey", "wxsid", "wxuin", "pass_ticket",
-		"webwx_data_ticket", "webwx_auth_ticket",
-		"deviceId",
-		"uid", "uname", "nickname", "avatar", "signature",
+			var String_Keys = ["skey", "wxsid", "wxuin", "pass_ticket",
+			"webwx_data_ticket", "webwx_auth_ticket",
+			"deviceId",
+			"uid", "uname", "nickname", "avatar", "signature",
 		];
 		for(var i in String_Keys)
 		{
@@ -186,16 +188,31 @@ QtObject{
 		_PIPELINE.SetLoginData(new Object());
 
 		sessionmodel._Reset();
-	}
+	};
 
-	function _Login()
+	var f = function(msg){
+		controller._ShowMessage(msg);
+		s();
+	};
+
+	if(logined && _IsValid())
 	{
-		_Logout();
-		pageStack.clear();
-		controller._OpenLoginPage();
+		Script.GetLogout(undefined, s, f);
 	}
+	else
+	{
+		s();
+	}
+}
 
-	onSynckeyChanged: {
-		_PIPELINE.SetSyncKey(synckey);
-	}
+function _Login()
+{
+	_Logout();
+	pageStack.clear();
+	controller._OpenLoginPage();
+}
+
+onSynckeyChanged: {
+	_PIPELINE.SetSyncKey(synckey);
+}
 }

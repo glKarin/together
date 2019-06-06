@@ -14,6 +14,7 @@ BasePage {
 
 	function _Init()
 	{
+		Script.Reset();
 		obj._GetLoginUUID();
 	}
 
@@ -93,9 +94,8 @@ BasePage {
 				}
 				else if(code == 200)
 				{
-					var params = _UT.ParseUrl(data.redirect_uri, "PARAMS");
+					var params = _UT.ParseUrl(data.redirect_uri);
 				obj.loginState = 5;
-				params.url = _UT.ParseUrl(data.redirect_uri, "SCHEME") + "://" + _UT.ParseUrl(data.redirect_uri, "HOST") + _UT.ParseUrl(data.redirect_uri, "PATH");
 					obj._GetLoginRedirect(params);
 				}
 				else if(code == 408) // timeout

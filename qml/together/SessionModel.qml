@@ -43,6 +43,7 @@ ListModel{
 	property string currentUname;
 	signal currentChanged(int index, string session, string name, string unsend, string uname);
 	signal preChange(int index);
+	objectName: "idSessionModel";
 
 	function _MakeSessionData(msg)
 	{
@@ -280,6 +281,14 @@ ListModel{
 				currentUnsend = m.unsend;
 				currentUname = m.uname;
 				root._SetModelValue("unread", 0);
+			}
+			else
+			{
+				currentIndex = -1;
+				currentName = "";
+				currentSession = "";
+				currentUnsend = "";
+				currentUname = "";
 			}
 		}
 		else

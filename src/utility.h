@@ -40,18 +40,19 @@ public:
     Q_INVOKABLE QVariant ResetSetting(const QString &name = QString());
     Q_INVOKABLE void Print_r(const QVariant &v) const;
     Q_INVOKABLE void SetRequestHeaders(const QVariant &v);
+    Q_INVOKABLE void SetRequestHeader(const QString &k, const QString &v);
     Q_INVOKABLE QString Sign(const QVariantMap &args, const QString &suffix = QString(), const QVariantMap &sysArgs = QVariantMap()) const;
 		Q_INVOKABLE QVariant Get(const QString &name = QString()) const;
 		Q_INVOKABLE QVariant Changelog(const QString &version = QString()) const;
-		Q_INVOKABLE QString Uncompress(const QString &src, int windowbits = 32 + 15);
-		Q_INVOKABLE QVariant XML_Parse(const QString &xml);
-		Q_INVOKABLE QVariant GetDefaultSetting(const QString &name = QString());
-		Q_INVOKABLE QString FormatUrl(const QString &u);
-		Q_INVOKABLE qint64 System(const QString &path, const QVariant &args = QVariant(), bool async = false);
+		Q_INVOKABLE QString Uncompress(const QString &src, int windowbits = 32 + 15) const;
+		Q_INVOKABLE QVariant XML_Parse(const QString &xml) const;
+		Q_INVOKABLE QVariant GetDefaultSetting(const QString &name = QString()) const;
+		Q_INVOKABLE QString FormatUrl(const QString &u) const;
+		Q_INVOKABLE qint64 System(const QString &path, const QVariant &args = QVariant(), bool async = false) const;
 		Q_INVOKABLE void CheckUpdate();
-		Q_INVOKABLE QVariant ParseUrl(const QString &url, const QString &part = "PARAM") const;
+		Q_INVOKABLE QVariant ParseUrl(const QString &url, const QString &part = QString()) const;
 		Q_INVOKABLE QVariant GetCookie(const QString &url) const;
-		Q_INVOKABLE QString CacheFile(const QString &b64, const QString &name = QString());
+		Q_INVOKABLE QString CacheFile(const QString &b64, const QString &name = QString()) const;
     
 Q_SIGNALS:
 		void devChanged(int dev);

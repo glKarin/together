@@ -61,6 +61,16 @@ QtObject {
 		return p;
 	}
 
+	function _OpenArticlePage(url, im)
+	{
+		if(_IsCurrentPage("Article")) return;
+		if(!_CheckLogin()) return;
+		var page = Qt.createComponent(Qt.resolvedUrl("ArticlePage.qml"));
+		var p = pageStack.push(page, undefined, im);
+		p._Init(url);
+		return p;
+	}
+
 	function _OpenSessionPage(uname, im)
 	{
 		if(_IsCurrentPage("Session"))

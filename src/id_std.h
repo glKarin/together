@@ -6,7 +6,7 @@
 #define ID_APP "Together"
 #define ID_NAME QObject::tr("Together")
 #define ID_PKG "together"
-#define ID_VER "2014.0.5harmattan1"
+#define ID_VER "2014.0.6harmattan1"
 #define ID_CODE "paradise"
 #define ID_DEV "karin"
 #define ID_RELEASE "20140405"

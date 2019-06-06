@@ -49,7 +49,7 @@ Item{
 		z: 1;
 		minimumValue: 0;
 		maximumValue: Math.max(flick.contentWidth - flick.width, 0);
-		visible: bBrowserHelper;
+		visible: root.bBrowserHelper;
 		stepSize: 1;
 		value: flick.contentX;
 		height: visible ? constants._iSizeLarge : 0;
@@ -72,7 +72,7 @@ Item{
 		stepSize: 1;
 		inverted: true;
 		width: visible ? constants._iSizeLarge : 0;
-		visible: bBrowserHelper;
+		visible: root.bBrowserHelper;
 		minimumValue: 0;
 		maximumValue: Math.max(flick.contentHeight - flick.height, 0);
 		value: flick.contentY;

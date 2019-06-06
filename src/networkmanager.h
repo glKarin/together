@@ -66,6 +66,7 @@ public:
     QNetworkReply * Request(const QString &url, const QByteArray &data = QByteArray(), RequestMethod_e method = Request_Get);
     void SetRequestHeaders(const QVariantMap &headers);
     void SetRequestHeaders(const QVariantList &headers);
+    void SetRequestHeader(const QString &k, const QString &v);
     
 signals:
     

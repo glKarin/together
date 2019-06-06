@@ -9,7 +9,7 @@ Item{
 	id: root;
 
 	property bool _inited: false;
-	property int _index: 2;
+	property int _index: 3;
 	objectName: "idHomeItem";
 
 	function _Init()

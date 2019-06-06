@@ -5,7 +5,7 @@ import "../../js/util.js" as Util
 
 Item{
 	id: root;
-	property int iMargin: constants._iSpacingMedium;
+	property int iMargin: constants._iSpacingSmall;
 	signal avatarClicked(int index, variant data);
 	signal clicked(int index, variant data);
 	signal doubleClicked(int index, variant data);

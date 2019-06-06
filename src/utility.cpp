@@ -18,7 +18,7 @@
 #include "networkmanager.h"
 #include "id_std.h"
 
-#define ID_SETTING_VERSION 2
+#define ID_SETTING_VERSION 3
 
 namespace id
 {
@@ -40,13 +40,13 @@ namespace id
 
 		_tDefaultSettings.insert("chat/sync_interval", 5);
 		_tDefaultSettings.insert("chat/sync_background", 60);
-		_tDefaultSettings.insert("chat/online_background", 5);
+		_tDefaultSettings.insert("chat/online_background", 10);
 		_tDefaultSettings.insert("chat/online_check", false);
 		_tDefaultSettings.insert("generals/run_mode", 1);
 
 		_tDefaultSettings.insert("browser/helper", false);
 		_tDefaultSettings.insert("browser/dbl_zoom", false);
-		_tDefaultSettings.insert("browser/load_image", false);
+		_tDefaultSettings.insert("browser/load_image", true);
 	}
 
 }
@@ -56,7 +56,7 @@ idUtility::idUtility(QObject *parent) :
 	oSettings(new QSettings(QSettings::UserScope, ID_DEV, ID_PKG, this)),
 	iDev(
 #ifdef _DBG
-			1
+			2
 #else
 			0
 #endif
@@ -345,6 +345,8 @@ QVariant idUtility::Changelog(const QString &version) const
 	if(version.isEmpty())
 	{
 		list 
+			<< QObject::tr("Fixed some user(redirect to wx2.qq.com) login.")
+			<< QObject::tr("Add subscribe and article.")
 			<< QObject::tr("Add update ckecking by OpenRepos.net.")
 			<< QObject::tr("Add repeat to send empty message to filehelper for keeping connection(TESTING).")
 			<< QObject::tr("Some fixes.")
@@ -364,7 +366,7 @@ QVariant idUtility::Changelog(const QString &version) const
 	return QVariant::fromValue<QVariantMap>(m);
 }
 
-QString idUtility::Uncompress(const QString &src, int windowbits)
+QString idUtility::Uncompress(const QString &src, int windowbits) const
 {
 	QByteArray b;
 
@@ -373,19 +375,19 @@ QString idUtility::Uncompress(const QString &src, int windowbits)
 	return QString();
 }
 
-QVariant idUtility::XML_Parse(const QString &xml)
+QVariant idUtility::XML_Parse(const QString &xml) const
 {
 	return id::qvariant_from_xml(xml);
 }
 
-QVariant idUtility::GetDefaultSetting(const QString &name)
+QVariant idUtility::GetDefaultSetting(const QString &name) const
 {
 	if(name.isEmpty())
 		return QVariant(id::_tDefaultSettings);
 	return id::_tDefaultSettings.value(name);
 }
 
-QString idUtility::FormatUrl(const QString &u)
+QString idUtility::FormatUrl(const QString &u) const
 {
 	int dot, slash;
 	QUrl url(u);
@@ -422,7 +424,7 @@ QString idUtility::FormatUrl(const QString &u)
 	return QString();
 }
 
-qint64 idUtility::System(const QString &path, const QVariant &args, bool async)
+qint64 idUtility::System(const QString &path, const QVariant &args, bool async) const
 {
 	qint64 pid;
 	QStringList list;
@@ -499,7 +501,23 @@ QVariant idUtility::ParseUrl(const QString &url, const QString &part) const
 		return r.join("&");
 	}
 	else
-		return u;
+	{
+		QVariantMap m;
+		m.insert("HOST", u.host());
+		m.insert("PORT", u.port());
+		m.insert("SCHEME", u.scheme());
+		m.insert("PATH", u.path());
+		{
+			QVariantMap r;
+			QList<QPair<QString, QString> > querys = u.queryItems();
+			ID_CONST_FOREACH(QList<idStringPair_t>, querys)
+			{
+				r.insert(itor->first, itor->second);
+			}
+			m.insert("PARAMS", r);
+		}
+		return m;
+	}
 }
 
 QVariant idUtility::GetCookie(const QString &url) const
@@ -519,7 +537,7 @@ QVariant idUtility::GetCookie(const QString &url) const
 	return r;
 }
 
-QString idUtility::CacheFile(const QString &b64, const QString &name)
+QString idUtility::CacheFile(const QString &b64, const QString &name) const
 {
 	QString file(name.isEmpty() ? QString::number(QDateTime::currentMSecsSinceEpoch()) : name);
 	QByteArray data = QByteArray::fromBase64(QByteArray().append(b64));
@@ -536,3 +554,19 @@ idUtility::idRunMode_e idUtility::RunMode() const
 	return eRunMode;
 }
 
+void idUtility::SetRequestHeader(const QString &k, const QString &v)
+{
+	QNetworkAccessManager *qmanager;
+	idNetworkAccessManager *manager;
+
+	if(!oEngine)
+		return;
+
+	qmanager = oEngine->networkAccessManager();
+	manager = dynamic_cast<idNetworkAccessManager *>(qmanager);
+
+	if(!manager)
+		return;
+
+	manager->SetRequestHeader(k, v);
+}

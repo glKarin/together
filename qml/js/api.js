@@ -2,6 +2,8 @@
 
 Qt.include("util.js");
 
+var idAPI_HOST = "";
+
 var __JSON_Print = function(json)
 {
 	console.log(JSON.stringify(json));
@@ -48,18 +50,26 @@ function MakeRedirectUrl(text)
 
 var idWebAPI = {
 	APPID: "wx782c26e4c19acffb",
+	WX_QQ_COM: "wx%1.qq.com",
 
 	JSLOGIN: "https://login.wx.qq.com/jslogin",
 	QRCODE: "https://login.wx.qq.com/qrcode/%1",
 	LOGIN: "https://login.wx.qq.com/cgi-bin/mmwebwx-bin/login",
-	REDIRECT: "https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxnewloginpage",
-	REDIRECT2: "https://wx2.qq.com/cgi-bin/mmwebwx-bin/webwxnewloginpage",
-	INIT: "https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxinit",
-	CONTACT: "https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxgetcontact",
-	CHECK: "https://webpush.wx.qq.com/cgi-bin/mmwebwx-bin/synccheck",
-	SYNC: "https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxsync",
-	BATCH: "https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxbatchgetcontact",
-	SEND: "https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxsendmsg",
+
+	REDIRECT: "https://%1/cgi-bin/mmwebwx-bin/webwxnewloginpage",
+	INIT: "https://%1/cgi-bin/mmwebwx-bin/webwxinit",
+	CONTACT: "https://%1/cgi-bin/mmwebwx-bin/webwxgetcontact",
+	CHECK: "https://webpush.%1/cgi-bin/mmwebwx-bin/synccheck",
+	SYNC: "https://%1/cgi-bin/mmwebwx-bin/webwxsync",
+	BATCH: "https://%1/cgi-bin/mmwebwx-bin/webwxbatchgetcontact",
+	SEND: "https://%1/cgi-bin/mmwebwx-bin/webwxsendmsg",
+	LOGOUT: "https://%1/cgi-bin/mmwebwx-bin/webwxlogout",
+
+
+
+	MakeHost: function(v){
+		return this.WX_QQ_COM.arg(v ? v : "");
+	},
 
 	MakeImgPath: function(pic){
 		if(pic.indexOf("http://") !== -1 || pic.indexOf("https://") !== -1)
@@ -172,6 +182,40 @@ var idWebAPI = {
 			__JSON_Print(e);
 			return false;
 		}
+	},
+
+	MakeHomeArticle: function(json, container){
+		if(!Array.isArray(json.MPSubscribeMsgList))
+			return false;
+		var push = Array.isArray(container) ? "push" : "append";
+		var list = json.MPSubscribeMsgList;
+		for(var i in list)
+		{
+			var e = list[i];
+			var item = {
+				uname: e.UserName,
+				nickname: e.NickName,
+				ts: e.Time,
+				articles: [],
+			};
+			if(e.MPArticleCount)
+			{
+				var sl = e.MPArticleList;
+				for(var i in sl)
+				{
+					var se = sl[i];
+					var si = {
+						title: se.Title,
+						preview: se.Cover,
+						summary: se.Digest,
+						url: se.Url,
+					};
+					item.articles.push(si);
+				}
+			}
+			container[push](item);
+		}
+		return i;
 	},
 
 	MakeMyContact: function(json, container, limit){
@@ -341,6 +385,16 @@ var idWebAPI = {
 		return ret ? true : r;
 	},
 
+	MakeAPI: function(a, v){
+		var h = this.MakeHost(v !== undefined ? v : idAPI_HOST);
+		return a.arg(h);
+	},
+
+	GetHost: function(host){
+		var p = /^wx(\w*)\.qq\.com/i;
+		var m = host.match(p);
+		return m ? m[1] : "";
+	},
 
 };
 

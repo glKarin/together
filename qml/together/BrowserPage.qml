@@ -10,10 +10,6 @@ BasePage {
 	objectName: "idBrowserPage";
 	eIconMode: 0;
 
-	property bool bLoadImage: settings.bBrowserLoadImage;
-	property bool bHelper: settings.bBrowserHelper;
-	property bool bDblZoom: settings.bBrowserDblZoom;
-
 	function _Init(url)
 	{
 		obj._Request(url);
@@ -21,13 +17,9 @@ BasePage {
 
 	QtObject{
 		id: obj;
-
-		function __SyncBrowserSettings()
-		{
-			browserHelper.checked = settings.bBrowserHelper;
-			browserLoadImage.checked = settings.bBrowserLoadImage;
-			browserDblZoom.checked = settings.bBrowserDblZoom;
-		}
+		property bool __loadImage: settings.bBrowserLoadImage;
+		property bool __helper: settings.bBrowserHelper;
+		property bool __dblZoom: settings.bBrowserDblZoom;
 
 		function __BrowserUrl(url)
 		{
@@ -180,9 +172,9 @@ BasePage {
 		anchors.right: parent.right;
 		anchors.bottom: parent.bottom;
 		dontDelegateLinks: true;
-		bLoadImage: root.bLoadImage;
-		bBrowserHelper: root.bHelper;
-		bAllowDblZoom: root.bDblZoom;
+		bLoadImage: obj.__loadImage;
+		bBrowserHelper: obj.__helper;
+		bAllowDblZoom: obj.__dblZoom;
 		onAlert: {
 			controller._ShowMessage(message);
 		}
@@ -253,12 +245,6 @@ BasePage {
 					pageStack.pop();
 				}
 			}
-		}
-	}
-
-	onStatusChanged: {
-		if (status === PageStatus.Active){
-			obj.__SyncBrowserSettings();
 		}
 	}
 
