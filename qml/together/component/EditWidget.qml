@@ -33,6 +33,7 @@ Item {
 		root.cleared();
 		_MakeFocus();
 	}
+
 	function _Select()
 	{
 		input.selectAll();
@@ -56,6 +57,16 @@ Item {
 		_MakeFocus();
 	}
 
+	function _Insert(text)
+	{
+		if(text === "") return;
+		var i = input.cursorPosition;
+		var left = input.text.substr(0, i);
+		var right = input.text.substr(i);
+		input.text = left + text + right;
+		input.cursorPosition = i + text.length;
+		_MakeFocus();
+	}
 
 	function _MakeFocus()
 	{

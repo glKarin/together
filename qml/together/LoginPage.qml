@@ -4,6 +4,7 @@ import "component"
 import "widget"
 import "../js/main.js" as Script
 import "../js/util.js" as Util
+import karin.together 1.0
 
 BasePage {
 	id: root;
@@ -58,7 +59,13 @@ BasePage {
 			};
 			var s = function(data){
 				obj.loginState = 2;
-				reqName = _CONNECTOR.Request(data.qrcode, "FILE-QRCODE");
+				obj.qrcode = data.qrcode;
+				//img.source = data.qrcode;
+				obj.loginState = 3;
+				obj._GetLoginState();
+			};
+			var f = function(){
+				obj.loginState = -2;
 			};
 			Script.GetQRCode(d, s);
 		}
@@ -77,18 +84,10 @@ BasePage {
 				if(code == 201)
 				{
 					obj.state = 1;
-					if((obj.loginState == 2 || obj.loginState == 3)&& data.userAvatar)
+					if((obj.loginState == 2 || obj.loginState == 3) && data.userAvatar)
 					{
-						var d = data.userAvatar.match(/^data:img\/.+;base64,(.+)/);
-						if(d)
-						{
-							var avatar = _UT.CacheFile(d[1], "LOGIN_AVATAR");
-							if(avatar)
-							{
-								obj.qrcode = "file://" + avatar;
-								obj.loginState = 4;
-							}
-						}
+						obj.qrcode = data.userAvatar;
+						obj.loginState = 4;
 					}
 					timer.restart();
 				}
@@ -192,12 +191,12 @@ BasePage {
 		}
 	}
 
-	Image{
+	TogetherImage{
 		id: img;
 		anchors.centerIn: parent;
 		height: constants._iSizeTooBig;
 		width: height;
-		cache: false;
+		//cache: true;
 		smooth: true;
 		sourceSize.width: width;
 		sourceSize.height: height;
@@ -239,27 +238,6 @@ BasePage {
 		interval: 1000;
 		onTriggered: {
 			obj._GetLoginState();
-		}
-	}
-
-	Connections{
-		target: _CONNECTOR;
-		onFinished: {
-			if(obj.reqName === name)
-			{
-				if(error == 0)
-				{
-					obj.qrcode = value;
-					obj.loginState = 3;
-					obj._GetLoginState();
-				}
-				else
-				{
-					obj.loginState = -2;
-				}
-			}
-			else controller._ShowMessage(value);
-			obj.reqName = "";
 		}
 	}
 

@@ -22,7 +22,6 @@ Rectangle{
 		model: []
 		delegate: Component{
 			ToolIcon{
-				anchors.verticalCenter: parent.verticalCenter;
 				width: height;
 				height: ListView.view.height;
 				iconId: modelData.icon;

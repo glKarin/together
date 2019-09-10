@@ -307,3 +307,57 @@ function ParseBoolean(v)
 	else
 		return Boolean(v);
 }
+
+function FormatFileSize(b)
+{
+	var Rules = [
+	{ limit: 1024, name: qsTr(" Bytes"), },
+	{ limit: Math.pow(1024, 2), name: qsTr(" Kb"), },
+	{ limit: Math.pow(1024, 3), name: qsTr(" Mb"), },
+		{ limit: Math.pow(1024, 4), name: qsTr(" Gb"), },
+		{ limit: -1, name: qsTr(" Tb"), },
+	];
+	var p = 1;
+	for(var i in Rules)
+	{
+		var r = Rules[i];
+		if(b < r.limit || r.limit === -1)
+		{
+			return "%1%2".arg(p === 1 ? b : (b / p).toFixed(2)).arg(r.name);
+		}
+		p = r.limit;
+	}
+	return b + qsTr(" Bytes");
+}
+
+function FormatFileMode(p)
+{
+	var r = "";
+	var Rules = [
+	{ mode: 0x0400, label: "r", },
+	{ mode: 0x0200, label: "w", },
+	{ mode: 0x0100, label: "x", },
+	{ mode: 0x0040, label: "r", },
+	{ mode: 0x0020, label: "w", },
+	{ mode: 0x0010, label: "x", },
+	{ mode: 0x0004, label: "r", },
+	{ mode: 0x0002, label: "w", },
+	{ mode: 0x0001, label: "x", },
+	];
+	for(var i in Rules)
+	{
+		var rule = Rules[i];
+		r += p & rule.mode ? rule.label : "-";
+	}
+	return r;
+}
+
+function CaleImageZoomFactory(src_w, src_h, tag_w, tag_h)
+{
+	if(src_w === 0 || src_h === 0 || tag_w === 0 || tag_h === 0) return 0;
+
+	var a = src_w / src_h;
+	var b = tag_w / tag_h;
+	var f = a < b ? (tag_h / src_h) : (tag_w / src_w);
+	return f;
+}

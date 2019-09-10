@@ -44,6 +44,7 @@ BasePage{
 				globals.synckey = data.synckey;
 				globals._Dump();
 				sessionmodel._SetData(data.data);
+				obj._GetGroupInitData();
 				subscribemodel._SetData(data.subscribe_data);
 				root.bBusy = false;
 			};
@@ -53,6 +54,24 @@ BasePage{
 			};
 
 			Script.GetInitData(undefined, s, f);
+		}
+
+		function _GetGroupInitData()
+		{
+			if(!globals._IsValid()) return;
+			if(!sessionmodel.__inited) return;
+
+			var unames = [];
+			Util.ModelForeach(sessionmodel, function(e){
+				if(Script.idAPI.IsGroupUname(e.uname))
+				unames.push(e.uname);
+			});
+			if(unames.length > 0)
+			{
+				appobj._GetUserContact(unames, function(data){
+					sessionmodel._UpdateData(data);
+				});
+			}
 		}
 	}
 
@@ -112,9 +131,11 @@ BasePage{
 		//dragMargin:-400;
 		path: Path{
 			startX: -1 * pathview.width + pathview.width / 2;
+			//startX: -2 * pathview.width + pathview.width / 2;
 			startY: pathview.height / 2;
 			PathLine{
 				x: 3 * pathview.width + pathview.width / 2;
+				//x: 2 * pathview.width + pathview.width / 2;
 				y: pathview.height / 2;
 			}
 		}

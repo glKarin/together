@@ -1,15 +1,27 @@
 #ifndef _KARIN_PIPELINE_H
 #define _KARIN_PIPELINE_H
 
+#ifndef _SIMULATOR
 #include <QtDBus>
+#else
+#include <QObject>
+#endif
 #include <QVariant>
 
 class QNetworkAccessManager;
 class QNetworkReply;
 
-class idPipeline : public QDBusAbstractAdaptor
+class idSyncCheckThread;
+
+class idPipeline : public 
+#ifndef _SIMULATOR
+									 QDBusAbstractAdaptor
+#else
+									 QObject
+#endif
 {
 	Q_OBJECT
+#ifndef _SIMULATOR
 		Q_CLASSINFO("D-Bus Interface", "com.karin.together")  
 
 		Q_CLASSINFO("D-Bus Introspection",  
@@ -22,7 +34,7 @@ class idPipeline : public QDBusAbstractAdaptor
 				"    </method>\n" 
 				"    <method name=\"ShowGUI\">\n"  
 				"    </method>\n" 
-				"    <method name=\"DestoryWindow\">\n"  
+				"    <method name=\"DestroyWindow\">\n"  
 				"    </method>\n" 
 				"    <method name=\"Quit\">\n"  
 				"    </method>\n" 
@@ -31,6 +43,7 @@ class idPipeline : public QDBusAbstractAdaptor
 				"    </method>\n" 
 				"  </interface>\n"  
 				"")
+#endif
 
 	public:
 		virtual ~idPipeline();
@@ -46,10 +59,11 @@ class idPipeline : public QDBusAbstractAdaptor
 		void ActivateWindow();
 		void DeactivateWindow();
 		void CreateWindow();
-		void DestoryWindow();
+		void DestroyWindow();
 		void ShowGUI();
 		void QmlViewerDestroyed();
 		void Quit();
+		void Boot();
 		int RunMode() const;
 
 	private:
@@ -57,15 +71,18 @@ class idPipeline : public QDBusAbstractAdaptor
 		QVariantMap tLoginInfo;
 		QVariantMap tUserInfo;
 		QString sSyncKey;
+		idSyncCheckThread *m_thread;
 
 	private:
 		idPipeline(QObject *parent = 0);
-		QNetworkAccessManager * NetworkManager();
 		bool IsValid() const;
+		Q_DISABLE_COPY(idPipeline)
 
 		private Q_SLOTS:
-			void finishedSLOT(QNetworkReply *reply);
 		void SyncCheck();
+		void StopCheck();
+
+		friend class idSyncCheckThread;
 };
 
 namespace id

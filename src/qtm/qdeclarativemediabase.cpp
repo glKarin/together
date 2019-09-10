@@ -45,6 +45,10 @@
 #include <QtCore/qurl.h>
 #include <QtDeclarative/qdeclarativeinfo.h>
 
+#ifdef _KARIN_MM_EXTENSIONS
+#include <QSslConfiguration>
+#endif
+
 #include <qmediaplayercontrol.h>
 #include <qmediaservice.h>
 #include <qmediaserviceprovider.h>
@@ -657,12 +661,16 @@ void QDeclarativeMediaBase::SetUsingHeaders(bool b)
 
 void QDeclarativeMediaBase::SetMediaRequest()
 {
-	if(!bUsingHeaders)
-		return;
-	if(tHeaders.isEmpty())
+	QString scheme = m_source.scheme();
+	if(scheme != "https")
 	{
-		m_playerControl->setMedia(m_source, 0);
-		return;
+		if(!bUsingHeaders)
+			return;
+		if(tHeaders.isEmpty())
+		{
+			m_playerControl->setMedia(m_source, 0);
+			return;
+		}
 	}
 
 #ifdef VDEBUG
@@ -681,6 +689,13 @@ void QDeclarativeMediaBase::SetMediaRequest()
 #ifdef VDEBUG
 	qDebug() << "|______________________________________|";
 #endif
+	if(scheme == "https")
+	{
+		QSslConfiguration config;
+		config.setPeerVerifyMode(QSslSocket::VerifyNone);
+		config.setProtocol(QSsl::AnyProtocol);
+		req.setSslConfiguration(config);
+	}
 	m_playerControl->setMedia(req, 0);
 }
 
@@ -693,6 +708,8 @@ bool QDeclarativeMediaBase::CheckSource() const
 	if(scheme.isEmpty() || scheme == "file")
 		return false;
 
+	if(scheme == "https")
+		return true;
 	return bUsingHeaders;
 }
 

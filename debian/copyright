@@ -1,15 +1,17 @@
-This package was debianized by karin <beyondk2000@gmail.com> on
-Fri, 29 Mar 2019 11:14:54 +0800.
+This package was debianized by developer <developer@unknown> on
+Mon, 03 Jun 2019 00:01:11 +0800.
 
 It was downloaded from <url://example.com>
 
 Upstream Author(s):
 
-    <karin beyondk2000@gmail.com>
+    <put author's name and email here>
+    <likewise for another author>
 
 Copyright:
 
-    <Copyright (C) 2014 karin>
+    <Copyright (C) YYYY Name OfAuthor>
+    <likewise for another author>
 
 License:
 
@@ -30,7 +32,7 @@ License:
 On Debian systems, the complete text of the GNU General
 Public License can be found in `/usr/share/common-licenses/GPL'.
 
-The Debian packaging is (C) 2019, karin <beyondk2000@gmail.com> and
+The Debian packaging is (C) 2019, developer <developer@unknown> and
 is licensed under the GPL, see above.
 
 

@@ -45,12 +45,14 @@ ContextMenu{
 				obj._GetInitData(true);
 			}
 		}
+		/*
 		MenuItem{
 			text: qsTr("Relogin");
 			onClicked: {
 				globals._Login();
 			}
 		}
+		*/
 		MenuItem{
 			text: qsTr("Quit");
 			onClicked: {

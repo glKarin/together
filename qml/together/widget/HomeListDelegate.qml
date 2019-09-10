@@ -21,24 +21,16 @@ Rectangle{
 		}
 	}
 
-	Image{
+	AvatarWidget{
 		id: avatar;
 		anchors.left: parent.left;
 		anchors.leftMargin: constants._iSpacingLarge;
 		anchors.verticalCenter: parent.verticalCenter;
 		height: parent.height - constants._iSpacingLarge * 2;
 		width: height;
-		fillMode: Image.PreserveAspectCrop;
-		clip: true
 		source: model.avatar;
-		//cache: false;
-		smooth: true;
-		sourceSize: Qt.size(width, height);
-		MouseArea{
-			anchors.fill: parent;
-			onClicked: {
-				root.imageClicked(index, model);
-			}
+		onClicked: {
+			root.imageClicked(index, model);
 		}
 	}
 
@@ -75,7 +67,7 @@ Rectangle{
 			color: constants._cSecondaryColor;
 			maximumLineCount: 2;
 			wrapMode: Text.WrapAnywhere;
-			verticalAlignment: Text.AlignVCenter;
+			//verticalAlignment: Text.AlignVCenter;
 			textFormat: Text.RichText;
 			clip: true;
 		}

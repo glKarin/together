@@ -3,8 +3,13 @@
 #include <QApplication>
 #include <QDebug>
 #include <QNetworkReply>
+#include <QTimer>
+#include <QThread>
+#include <QEventLoop>
+#ifndef _SIMULATOR
 #include <MNotification>
 #include <MRemoteAction>
+#endif
 
 #include "id_std.h"
 #include "utility.h"
@@ -17,15 +22,134 @@ namespace id
 	extern void create_qml_viewer();
 }
 
+class idSyncCheckThread : public QThread
+{
+	//Q_OBJECT
+
+	public:
+		explicit idSyncCheckThread(QObject *parent)
+			: QThread(parent),
+			m_pipeline(static_cast<idPipeline *>(parent)),
+			m_manager(0),
+			m_interval(idUtility::Instance()->GetSetting<int>("chat/sync_background") * 1000)
+		{
+			setObjectName("idSyncCheckThread");
+		}
+
+		virtual ~idSyncCheckThread()
+		{
+			ID_QOBJECT_DESTROY_DBG
+		}
+
+		virtual void run()
+		{
+			while(1)
+			{
+				if(Handle()) Response();
+				QThread::msleep(m_interval);
+			}
+		}
+
+public Q_SLOTS:
+    void Restart(Priority priority = IdlePriority)
+		{
+			if(isRunning())
+				terminate();
+			QThread::start(priority);
+		}
+    void start(Priority priority = IdlePriority)
+		{
+			QThread::start(priority);
+		}
+		void quit()
+		{
+			if(m_manager)
+			{
+				m_manager->deleteLater();
+				m_manager = 0;
+			}
+			QThread::quit();
+		}
+		void terminate()
+		{
+			if(m_manager)
+			{
+				m_manager->deleteLater();
+				m_manager = 0;
+			}
+			QThread::terminate();
+		}
+
+	private:
+		bool Handle()
+		{
+			QNetworkReply *reply;
+			qint64 ts;
+			bool ret;
+
+			ret = false;
+			if(!id::network_online())
+			{
+				qDebug() << "[Debug]: network is offline.";
+				return ret;
+			}
+
+			if(!m_pipeline->IsValid())
+				return ret;
+			if(!m_manager)
+				m_manager = new idNetworkAccessManager(this);
+
+			const QString Fmt("https://webpush.wx.qq.com/cgi-bin/mmwebwx-bin/synccheck?skey=%1&sid=%2&uin=%3&deviceid=%4&synckey=%5&r=%6&_=%7");
+			ts = QDateTime::currentMSecsSinceEpoch();
+			QNetworkRequest req(Fmt.arg(m_pipeline->tLoginInfo["skey"].toString()).arg(m_pipeline->tLoginInfo["wxsid"].toString()).arg(m_pipeline->tLoginInfo["wxuin"].toString()).arg(m_pipeline->tLoginInfo["deviceId"].toString()).arg(m_pipeline->sSyncKey).arg(ts).arg(ts));
+			QEventLoop loop;
+			connect(qApp, SIGNAL(aboutToQuit()), &loop, SLOT(quit()));
+			reply = m_manager->get(req);
+			connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+			if(!reply->isFinished())
+				loop.exec(QEventLoop::ExcludeUserInputEvents);
+			if(!reply->isFinished())
+			{
+				reply->abort();
+				reply->deleteLater();
+				return ret;
+			}
+
+			qDebug()<<req.url()<<reply->readAll();
+			ret = reply->error() == QNetworkReply::NoError;
+			reply->deleteLater();
+			return ret;
+		}
+
+		void Response()
+		{
+		}
+
+	private:
+		idPipeline *m_pipeline;
+		QNetworkAccessManager *m_manager;
+		int m_interval;
+
+		friend class idPipeline;
+};
 idPipeline::idPipeline(QObject *parent)
-	: QDBusAbstractAdaptor(parent)
+	: 
+#ifndef _SIMULATOR
+		QDBusAbstractAdaptor
+#else
+		QObject
+#endif
+(parent),
+	m_thread(0)
 {
 	setObjectName("idPipeline");
 }
 
 idPipeline::~idPipeline()
 {
-	ClearNotifications();
+	ID_QOBJECT_DESTROY_DBG
+	StopCheck();
+	//ClearNotifications();
 }
 
 void idPipeline::ShowNotification(const QString &title, const QString &message)
@@ -36,7 +160,7 @@ void idPipeline::ShowNotification(const QString &title, const QString &message)
 
 void idPipeline::AddNotification(const QString &title, const QString &message)
 {
-#ifdef _HARMATTAN
+#ifndef _SIMULATOR
 	MNotification notification(ID_PKG, title, message);
 	MRemoteAction action("com." ID_DEV "." ID_PKG, "/com/" ID_DEV "/" ID_PKG, "com." ID_DEV "." ID_PKG, "ShowGUI");
 	notification.setAction(action);
@@ -48,7 +172,7 @@ void idPipeline::AddNotification(const QString &title, const QString &message)
 
 void idPipeline::ClearNotifications()
 {
-#ifdef _HARMATTAN
+#ifndef _SIMULATOR
 	QList<MNotification *> activeNotifications = MNotification::notifications();
 	QMutableListIterator<MNotification *> i(activeNotifications);
 	while (i.hasNext()) {
@@ -89,7 +213,7 @@ void idPipeline::CreateWindow()
 	}
 }
 
-void idPipeline::DestoryWindow()
+void idPipeline::DestroyWindow()
 {
 	if(qml_viewer)
 	{
@@ -100,6 +224,10 @@ void idPipeline::DestoryWindow()
 
 void idPipeline::ShowGUI()
 {
+#ifdef _DBG
+	if(idUtility::Instance()->RunMode() == idUtility::RunMode_Close_Window)
+		StopCheck();
+#endif
 	if(qml_viewer)
 		ActivateWindow();
 	else
@@ -109,6 +237,15 @@ void idPipeline::ShowGUI()
 void idPipeline::QmlViewerDestroyed()
 {
 	qml_viewer = 0;
+	ClearNotifications();
+#ifdef _DBG
+	if(idUtility::Instance()->RunMode() == idUtility::RunMode_Close_Window
+#if 1
+			&& 0
+#endif
+			)
+		SyncCheck();
+#endif
 }
 
 idPipeline * idPipeline::Create(QObject *parent)
@@ -155,9 +292,9 @@ void idPipeline::SetLoginData(const QVariant &data)
 	else
 	{
 		/*
-		tUserInfo.clear();
-		tLoginInfo.clear();
-		*/
+			 tUserInfo.clear();
+			 tLoginInfo.clear();
+			 */
 	}
 }
 
@@ -171,49 +308,23 @@ int idPipeline::RunMode() const
 	return static_cast<int>(idUtility::Instance()->RunMode());
 }
 
-QNetworkAccessManager * idPipeline::NetworkManager()
-{
-	extern idDeclarativeNetworkAccessManagerFactory factory;
-	if(!oManager)
-	{
-		oManager = factory.create(this);
-	}
-	return oManager;
-}
-
-void idPipeline::finishedSLOT(QNetworkReply *reply)
-{
-	int err;
-
-	err = reply->error();
-	if(err == QNetworkReply::NoError)
-	{
-		QByteArray data = reply->readAll();
-		qDebug() << "Sync data -> " << data;
-		// handle json with libqjson
-	}
-	else
-		qDebug() << "Sync on background error -> " << reply->errorString();
-
-	reply->deleteLater();
-	QTimer::singleShot(idUtility::Instance()->GetSetting<int>("chat/sync_interval_background"), this, SLOT(SyncCheck()));
-}
-
 void idPipeline::SyncCheck()
 {
-	QNetworkAccessManager *manager;
-	qint64 ts;
-	const QString Fmt("https://webpush.wx.qq.com/cgi-bin/mmwebwx-bin/synccheck?skey=%1&sid=%2&uin=%3&deviceid=%4&synckey=%5&r=%6&_=%7");
-
 	if(!IsValid())
 		return;
-	manager = NetworkManager();
-	if(!manager)
-		return;
+	if(!m_thread)
+		m_thread = new idSyncCheckThread(this);
+	qDebug() << "[Debug]: Sync check thread start.";
+	m_thread->Restart();
+}
 
-	ts = QDateTime::currentMSecsSinceEpoch();
-	QNetworkRequest req(Fmt.arg(tLoginInfo["skey"].toString()).arg(tLoginInfo["wxsid"].toString()).arg(tLoginInfo["wxuin"].toString()).arg(tLoginInfo["deviceId"].toString()).arg(sSyncKey).arg(ts).arg(ts));
-	manager->get(req);
+void idPipeline::StopCheck()
+{
+	if(m_thread && m_thread->isRunning())
+	{
+		m_thread->terminate();
+		qDebug() << "[Debug]: Sync check thread stop.";
+	}
 }
 
 bool idPipeline::IsValid() const
@@ -258,6 +369,7 @@ namespace id
 {
 	bool register_to_qt_dbus(const QString &service, const QString &path, QObject *obj)
 	{
+#ifndef _SIMULATOR
 		QDBusConnection conn = QDBusConnection::sessionBus();
 		if(!conn.registerService(service))
 			qDebug() << "QtDBus -> " << conn.lastError();
@@ -268,6 +380,12 @@ namespace id
 			else
 				return true;
 		}
+#endif
 		return false;
 	}
+}
+
+void idPipeline::Boot()
+{
+	QProcess::startDetached(qApp->applicationFilePath(), QStringList());
 }

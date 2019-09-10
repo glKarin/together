@@ -1,3 +1,17 @@
+together (2014.0.7harmattan2-webwechat) unstable; urgency=low
+
+  * Fixed some user(redirect to wx2.qq.com) avatar image.
+  * Add send emoji, animation emoji, image, video and files.
+  * Add receive voice, animation emoji, image, video and files.
+  * Add transfer record manager page, all download files is in '/home/user/MyDocs/together' directory.
+  * Add long press to delete, revoke and copy message.
+  * Add view member on group.
+  * Fixed view group member avatar and name.
+  * Optmize send message effect.
+  * Some fixes.
+
+ -- karin <beyondk2000@gmail.com>  Sun, 30 Jun 2019 23:59:59 +0800
+
 together (2014.0.6harmattan1-webwechat) unstable; urgency=low
 
   * Fixed some user(redirect to wx2.qq.com) login.

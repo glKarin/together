@@ -5,7 +5,7 @@
 #include <QVariant>
 
 class QSettings;
-class QDeclarativeEngine;
+class idNetworkAccessManager;
 
 class idUtility : public QObject
 {
@@ -25,8 +25,6 @@ class idUtility : public QObject
 public:
     virtual ~idUtility();
     static idUtility * Instance();
-    void SetEngine(QDeclarativeEngine *e);
-    QDeclarativeEngine * Engine();
     template <class T> T GetSetting(const QString &name);
     template <class T> void SetSetting(const QString &name, const T &value);
 		int Dev() const;
@@ -51,8 +49,14 @@ public:
 		Q_INVOKABLE qint64 System(const QString &path, const QVariant &args = QVariant(), bool async = false) const;
 		Q_INVOKABLE void CheckUpdate();
 		Q_INVOKABLE QVariant ParseUrl(const QString &url, const QString &part = QString()) const;
-		Q_INVOKABLE QVariant GetCookie(const QString &url) const;
+		Q_INVOKABLE QVariant GetCookie(const QString &url, const QString &name = QString()) const;
 		Q_INVOKABLE QString CacheFile(const QString &b64, const QString &name = QString()) const;
+		Q_INVOKABLE QVariant GetRequestHeader(const QString &name = QString());
+		Q_INVOKABLE void SetReferer(const QString &referer = QString());
+		Q_INVOKABLE QVariant GetFileInfo(const QString &path, const QString &name = QString()) const;
+		Q_INVOKABLE QString Lang(const QString &name) const;
+		Q_INVOKABLE QVariant GetStorageInfo(const QString &path = QString());
+		Q_INVOKABLE void ClearLocalStorage(const QString &path = QString());
     
 Q_SIGNALS:
 		void devChanged(int dev);
@@ -61,10 +65,10 @@ Q_SIGNALS:
 private:
     explicit idUtility(QObject *parent = 0);
     void Init();
+		idNetworkAccessManager * NetworkAccessManager();
 
 private:
     QSettings *oSettings;
-    QDeclarativeEngine *oEngine;
 		int iDev;
 		idRunMode_e eRunMode;
 

@@ -1,4 +1,5 @@
 import QtQuick 1.1
+import com.nokia.meego 1.1
 
 Item{
 	id: root;
@@ -11,6 +12,13 @@ Item{
 	property int iContentMargin: constants._iSpacingMedium;
 	property int iMinHeight: 0;
 	property int iMaxWidth: 0;
+	property bool bInteractive: true;
+
+	// 0 - ready
+	// 1 - loading
+	// 2 - error
+	// -1 - deleted
+
 	signal linkClicked(string link);
 	signal clicked(string text);
 	signal doubleClicked(string text);
@@ -28,6 +36,21 @@ Item{
 	width: iMaxWidth;
 	clip: true;
 
+	MouseArea{
+		id: mousearea;
+		anchors.fill: content;
+		enabled: root.bInteractive;
+		onClicked: {
+			root.clicked(content.text);
+		}
+		onDoubleClicked: {
+			root.doubleClicked(content.text);
+		}
+		onPressAndHold: {
+			root.pressAndHold(content.text);
+		}
+	}
+
 	Rectangle{
 		id: arrow;
 		anchors.top: parent.top;
@@ -38,6 +61,7 @@ Item{
 		color: baselayer.color;
 		rotation: 45;
 		smooth: true;
+		visible: root.bInteractive;
 	}
 
 	Rectangle{
@@ -49,6 +73,7 @@ Item{
 		color: root.__bgColor;
 		radius: root.__radius;
 		smooth: true;
+		visible: root.bInteractive;
 		Rectangle{
 			id: toplayer;
 			anchors.fill: parent;
@@ -79,21 +104,9 @@ Item{
 		color: root.__contentColor;
 		textFormat: Text.RichText;
 		onLinkActivated: {
+			if(root.bInteractive)
 			root.linkClicked(link);
 		}
 	}
 
-	MouseArea{
-		id: mousearea;
-		anchors.fill: content;
-		onClicked: {
-			root.clicked(content.text);
-		}
-		onDoubleClicked: {
-			root.doubleClicked(content.text);
-		}
-		onPressAndHold: {
-			root.pressAndHold(content.text);
-		}
-	}
 }

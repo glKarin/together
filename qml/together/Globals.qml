@@ -126,6 +126,7 @@ return true;
 
 	function _MakeSyncKey()
 	{
+		if(!synckey.List) return "";
 		var arr = [];
 		for(var i in synckey.List)
 		{
@@ -142,7 +143,7 @@ return true;
 				"Uin": globals.wxuin,
 				"Sid": globals.wxsid,
 				"Skey": globals.skey,
-				"deviceId": globals.deviceId,
+				"DeviceID": globals.deviceId,
 			},
 		};
 		return opt;

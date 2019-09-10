@@ -14,7 +14,7 @@ BasePage {
 	function _Init(u)
 	{
 		obj.user = u;
-		obj._GetUserContact(u);
+		obj._GetUserContact();
 	}
 
 	QtObject{
@@ -25,7 +25,8 @@ BasePage {
 		{
 			if(typeof(user) === "string")
 			{
-				appobj._GetUserContact(user, userview._SetInfo);
+				var str = user.split(" ");
+				appobj._GetUserContact(str[0], userview._SetInfo, str[1]);
 			}
 			else
 			{
@@ -47,10 +48,14 @@ BasePage {
 		Button{
 			anchors.horizontalCenter: parent.horizontalCenter;
 			text: qsTr("Send message");
+			enabled: userview.uname !== "";
 			onClicked: {
-				sessionmodel._AddSession(userview);
-				sessionmodel._SyncCurrent(userview.uname);
-				controller._OpenSessionPage(userview.uname);
+				if(userview.uname)
+				{
+					sessionmodel._AddSession(userview);
+					sessionmodel._SyncCurrent(userview.uname);
+					controller._OpenSessionPage(userview.uname);
+				}
 			}
 		}
 	}

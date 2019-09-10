@@ -5,7 +5,7 @@
 
 #include "id_std.h"
 
-//#define DBG
+#undef _DBG
 
 namespace id
 {
@@ -21,7 +21,7 @@ idNetworkAccessManager::idNetworkAccessManager(QObject *parent) :
 
 idNetworkAccessManager::~idNetworkAccessManager()
 {
-
+	ID_QOBJECT_DESTROY_DBG
 }
 
 QNetworkReply *	idNetworkAccessManager::createRequest ( Operation op, const QNetworkRequest & req, QIODevice * outgoingData )
@@ -77,7 +77,6 @@ QNetworkReply * idNetworkAccessManager::Request(const QString &url, const QByteA
 
 void idNetworkAccessManager::Init()
 {
-
     QNetworkCookieJar *cookieJar = idNetworkCookieJar::Instance();
     setCookieJar(cookieJar);
     cookieJar->setParent(0);
@@ -111,6 +110,28 @@ void idNetworkAccessManager::SetRequestHeader(const QString &k, const QString &v
 	oHeaders.AddHeader(k, v);
 }
 
+QVariantMap idNetworkAccessManager::RequestHeaders() const
+{
+	id::idRequestHeaders_t headers = oHeaders.Headers();
+	QVariantMap r;
+	ID_CONST_FOREACH(id::idRequestHeaders_t, headers)
+	{
+		r.insert(itor->first, itor->second);
+	}
+	return r;
+}
+
+QString idNetworkAccessManager::RequestHeader(const QString &name) const
+{
+	id::idRequestHeaders_t headers = oHeaders.Headers();
+	ID_CONST_FOREACH(id::idRequestHeaders_t, headers)
+	{
+		if(itor->first == name)
+			return itor->second;
+	}
+	return QString();
+}
+
 
 
 
@@ -122,6 +143,7 @@ idDeclarativeNetworkAccessManagerFactory::idDeclarativeNetworkAccessManagerFacto
 
 idDeclarativeNetworkAccessManagerFactory::~idDeclarativeNetworkAccessManagerFactory()
 {
+	ID_DESTROY_DBG("idDeclarativeNetworkAccessManagerFactory")
 }
 
 QNetworkAccessManager *	idDeclarativeNetworkAccessManagerFactory::create(QObject *parent)
@@ -152,7 +174,7 @@ idRequestHeaders::idRequestHeaders()
 
 idRequestHeaders::~idRequestHeaders()
 {
-
+	ID_DESTROY_DBG("idRequestHeaders")
 }
 
 void idRequestHeaders::AddHeader(const QString &name, const QString &value)
@@ -249,6 +271,8 @@ void idRequestHeaders::SetHeaders(QNetworkRequest *req)
 	{
 		if(B_Dbg)
 			qDebug() << itor->first << itor->second;
+		if(req->hasRawHeader(itor->first))
+			continue;
 		req->setRawHeader(itor->first, itor->second);
 	}
 }
@@ -294,6 +318,7 @@ QString idRequestHeaders::Method() const
 
 idNetworkCookieJar::~idNetworkCookieJar()
 {
+	ID_QOBJECT_DESTROY_DBG
 	Restore();
 }
 

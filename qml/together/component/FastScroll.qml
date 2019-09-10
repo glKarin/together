@@ -200,10 +200,17 @@ Item {
         function initDirtyObserver() {
             Sections.initialize(listView);
             function dirtyObserver() {
+							try //k
+							{
                 if (!internal.modelDirty) {
                     internal.modelDirty = true;
                     dirtyTimer.running = true;
                 }
+							}
+							catch(e)
+							{
+								console.log(e);
+							}
             }
 
             if (listView.model.countChanged)

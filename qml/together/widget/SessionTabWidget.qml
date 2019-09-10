@@ -90,4 +90,12 @@ TabGroup{
 			anchors.fill: parent;
 		}
 	}
+
+	onCurrentTabChanged: {
+		if(currentTab)
+		{
+			if(currentTab.objectName === "idSessionWidget")
+			currentTab._Init();
+		}
+	}
 }

@@ -9,16 +9,23 @@
 #include <QDebug>
 #include <QDir>
 #include <QDesktopServices>
+#include <QDateTime>
 #ifdef _MAEMO_MEEGOTOUCH_INTERFACES_DEV
 #include <maemo-meegotouch-interfaces/videosuiteinterface.h>
 #else
-#define ID_VIDEO_SUITE "/usr/bin/video-suite"
+#define VIDEO_SUITE "/usr/bin/video-suite"
 #endif
 
 #include "networkmanager.h"
+#include "audiorecorder.h"
+#include "cache.h"
+#include "transfermanager.h"
 #include "id_std.h"
+#include "qmlapplicationviewer.h"
 
-#define ID_SETTING_VERSION 3
+#define ID_SETTING_VERSION 5
+
+extern QmlApplicationViewer *qml_viewer;
 
 namespace id
 {
@@ -37,12 +44,14 @@ namespace id
 		_tDefaultSettings.insert("generals/default_browser", 1);
 		_tDefaultSettings.insert("generals/fullscreen", false);
 		_tDefaultSettings.insert("generals/check_update", true);
+		_tDefaultSettings.insert("generals/last_file_system_path", QDir::homePath());
 
 		_tDefaultSettings.insert("chat/sync_interval", 5);
 		_tDefaultSettings.insert("chat/sync_background", 60);
 		_tDefaultSettings.insert("chat/online_background", 10);
 		_tDefaultSettings.insert("chat/online_check", false);
 		_tDefaultSettings.insert("generals/run_mode", 1);
+		_tDefaultSettings.insert("chat/show_notification", true);
 
 		_tDefaultSettings.insert("browser/helper", false);
 		_tDefaultSettings.insert("browser/dbl_zoom", false);
@@ -69,7 +78,7 @@ idUtility::idUtility(QObject *parent) :
 
 idUtility::~idUtility()
 {
-
+	ID_QOBJECT_DESTROY_DBG
 }
 
 void idUtility::Init()
@@ -190,14 +199,9 @@ void idUtility::Print_r(const QVariant &v) const
 
 void idUtility::SetRequestHeaders(const QVariant &v)
 {
-	QNetworkAccessManager *qmanager;
 	idNetworkAccessManager *manager;
 
-	if(!oEngine)
-		return;
-
-	qmanager = oEngine->networkAccessManager();
-	manager = dynamic_cast<idNetworkAccessManager *>(qmanager);
+	manager = NetworkAccessManager();
 
 	if(!manager)
 		return;
@@ -206,16 +210,6 @@ void idUtility::SetRequestHeaders(const QVariant &v)
 		manager->SetRequestHeaders(v.toList());
 	else if(v.canConvert<QVariantMap>())
 		manager->SetRequestHeaders(v.toMap());
-}
-
-void idUtility::SetEngine(QDeclarativeEngine *e)
-{
-	oEngine = e;
-}
-
-QDeclarativeEngine * idUtility::Engine()
-{
-	return oEngine;
 }
 
 QString idUtility::Sign(const QVariantMap &args, const QString &suffix, const QVariantMap &sysArgs) const
@@ -262,11 +256,11 @@ QVariant idUtility::Get(const QString &name) const
 #ifdef _DBG
 #define ID_ICON_PATH QDir::cleanPath(QCoreApplication::applicationDirPath() + "/" ID_PKG "80.png")
 #define ID_CACHE_PATH QFileInfo(".").absoluteFilePath()
-#define ID_SPLASH QFileInfo(".").absoluteFilePath() + "/res/" ID_PKG ".jpg"
+#define ID_SPLASH QFileInfo(".").absoluteFilePath() + "/misc/" ID_PKG ".jpg"
 #else
 #define ID_ICON_PATH "/usr/share/icons/hicolor/80x80/apps/" ID_PKG "80.png"
 #define ID_CACHE_PATH QDesktopServices::storageLocation(QDesktopServices::TempLocation)
-#define ID_SPLASH "/opt/" ID_PKG "/res/" ID_PKG ".jpg"
+#define ID_SPLASH "/opt/" ID_PKG "/misc/" ID_PKG ".jpg"
 #endif
 	QVariant r;
 
@@ -345,23 +339,27 @@ QVariant idUtility::Changelog(const QString &version) const
 	if(version.isEmpty())
 	{
 		list 
-			<< QObject::tr("Fixed some user(redirect to wx2.qq.com) login.")
-			<< QObject::tr("Add subscribe and article.")
-			<< QObject::tr("Add update ckecking by OpenRepos.net.")
-			<< QObject::tr("Add repeat to send empty message to filehelper for keeping connection(TESTING).")
+			<< QObject::tr("Fixed some user(redirect to wx2.qq.com) avatar image.")
+			<< QObject::tr("Add send emoji, animation emoji, image, video and files.")
+			<< QObject::tr("Add receive voice, animation emoji, image, video and files.")
+			<< QObject::tr("Add transfer record manager page, all storage files is in '/home/user/MyDocs/together' directory.")
+			<< QObject::tr("Add long press to delete, revoke and copy message.")
+			<< QObject::tr("Add view member on group.")
+			<< QObject::tr("Fixed view group member avatar and name.")
+			<< QObject::tr("Optmize send message effect.")
 			<< QObject::tr("Some fixes.")
 			;
 	}
 
 	// read from changelog?
 	m.insert("CHANGES", list);
-	m.insert("PKG_NAME", QVariant());
-	m.insert("RELEASE", QVariant());
-	m.insert("DEVELOPER", QVariant());
-	m.insert("EMAIL", QVariant());
+	m.insert("PKG_NAME", ID_PKG);
+	m.insert("RELEASE", ID_RELEASE);
+	m.insert("DEVELOPER", ID_DEV);
+	m.insert("EMAIL", ID_EMAIL);
 	m.insert("URGENCY", QVariant());
-	m.insert("STATE", QVariant());
-	m.insert("VERSION", QVariant());
+	m.insert("STATE", ID_STATE);
+	m.insert("VERSION", ID_VER);
 
 	return QVariant::fromValue<QVariantMap>(m);
 }
@@ -520,7 +518,7 @@ QVariant idUtility::ParseUrl(const QString &url, const QString &part) const
 	}
 }
 
-QVariant idUtility::GetCookie(const QString &url) const
+QVariant idUtility::GetCookie(const QString &url, const QString &name) const
 {
 	QVariant r;
 	QList<QNetworkCookie> cookies = idNetworkCookieJar::Instance()->cookiesForUrl(QUrl(url));
@@ -529,11 +527,22 @@ QVariant idUtility::GetCookie(const QString &url) const
 		QVariantMap m;
 		ID_CONST_FOREACH(QList<QNetworkCookie>, cookies)
 		{
-			// qDebug() << c.name() << c.value();
-			m.insert(itor->name(), itor->value());
+			// qDebug() << itor->name() << itor->value();
+			if(name.isEmpty())
+				m.insert(itor->name(), itor->value());
+			else
+			{
+				if(itor->name() == name)
+				{
+					r.setValue(itor->value());
+					goto __Exit;
+				}
+			}
 		}
 		r.setValue(m);
 	}
+
+__Exit:
 	return r;
 }
 
@@ -556,17 +565,149 @@ idUtility::idRunMode_e idUtility::RunMode() const
 
 void idUtility::SetRequestHeader(const QString &k, const QString &v)
 {
-	QNetworkAccessManager *qmanager;
 	idNetworkAccessManager *manager;
 
-	if(!oEngine)
-		return;
-
-	qmanager = oEngine->networkAccessManager();
-	manager = dynamic_cast<idNetworkAccessManager *>(qmanager);
+	manager = NetworkAccessManager();
 
 	if(!manager)
 		return;
 
 	manager->SetRequestHeader(k, v);
 }
+
+QVariant idUtility::GetRequestHeader(const QString &name)
+{
+	QVariant r;
+	const idNetworkAccessManager *manager;
+
+	manager = NetworkAccessManager();
+	if(!manager)
+		return r;
+
+	if(name.isEmpty())
+		r.setValue(manager->RequestHeaders());
+	else
+		r.setValue(manager->RequestHeader(name));
+	//qDebug() << name << r;
+	return r;
+}
+
+idNetworkAccessManager * idUtility::NetworkAccessManager()
+{
+	idNetworkAccessManager *manager;
+
+	if(!qml_viewer)
+		return 0;
+
+	manager = dynamic_cast<idNetworkAccessManager *>(qml_viewer->engine()->networkAccessManager());
+	return manager;
+}
+
+void idUtility::SetReferer(const QString &referer)
+{
+	idNetworkAccessManager *manager;
+
+	manager = NetworkAccessManager();
+	if(!manager)
+		return;
+
+	QString v(referer);
+	if(v.isEmpty())
+		v = "wx.qq.com";
+	qDebug() << "[Debug]: Referer -> " << v;
+	manager->SetRequestHeader("Referer", "https://" + v + "/");
+}
+
+QVariant idUtility::GetFileInfo(const QString &path, const QString &name) const
+{
+	QVariant r;
+	QFileInfo info(path);
+
+	QString mime = id::get_mime_type(info.suffix());
+	QString type = !mime.isEmpty() ? mime.split("/")[0] : "";
+
+	if(name.isEmpty())
+	{
+		QVariantMap map;
+		map.insert("FILE_NAME", info.fileName());
+		map.insert("SUFFIX", info.completeSuffix());
+		map.insert("SIZE", info.size());
+		map.insert("TYPE", type);
+		map.insert("MIME", mime);
+		r.setValue(map);
+	}
+	else
+	{
+		if(name == "FILE_NAME")
+			r.setValue(info.fileName());
+		else if(name == "SUFFIX")
+			r.setValue(info.completeSuffix());
+		else if(name == "SIZE")
+			r.setValue(info.size());
+		else if(name == "TYPE")
+			r.setValue(type);
+		else if(name == "MIME")
+			r.setValue(mime);
+	}
+	return r;
+}
+
+QString idUtility::Lang(const QString &name) const
+{
+	if(name == "Click to play video")
+		return QObject::tr("Click to play video");
+	else if(name == "Voice message")
+		return QObject::tr("Voice message");
+	else if(name == "File")
+		return QObject::tr("File");
+	else if(name == "Click to download")
+		return QObject::tr("Click to download");
+	else
+		return "";
+}
+
+QVariant idUtility::GetStorageInfo(const QString &path)
+{
+	QVariant r;
+	QString type = path.toUpper();
+	if(type.isEmpty())
+	{
+		QVariantMap map;
+		map.insert("DOWNLOAD", id::cale_dir_size(ID_DATA_DOWNLOAD_PATH));
+		map.insert("VOICE_RECORD", id::cale_dir_size(ID_DATA_VOICE_PATH));
+		map.insert("TEMP_CACHE", id::cale_dir_size(idCache::CachePath()));
+		r.setValue(map);
+	}
+	else
+	{
+		if(type == "DOWNLOAD")
+			r.setValue(id::cale_dir_size(ID_DATA_DOWNLOAD_PATH));
+		else if(type == "VOICE_RECORD")
+			r.setValue(id::cale_dir_size(ID_DATA_VOICE_PATH));
+		else if(type == "TEMP_CACHE")
+			r.setValue(id::cale_dir_size(idCache::CachePath()));
+	}
+	return r;
+}
+
+void idUtility::ClearLocalStorage(const QString &path)
+{
+	QString type = path.toUpper();
+
+	if(type.isEmpty())
+	{
+		id::remove_all_file(ID_DATA_DOWNLOAD_PATH);
+		id::remove_all_file(ID_DATA_VOICE_PATH);
+		id::remove_all_file(idCache::CachePath());
+	}
+	else
+	{
+		if(type == "DOWNLOAD")
+			id::remove_all_file(ID_DATA_DOWNLOAD_PATH);
+		else if(type == "VOICE_RECORD")
+			id::remove_all_file(ID_DATA_VOICE_PATH);
+		else if(type == "TEMP_CACHE")
+			id::remove_all_file(idCache::CachePath());
+	}
+}
+

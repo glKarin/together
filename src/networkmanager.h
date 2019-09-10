@@ -67,6 +67,8 @@ public:
     void SetRequestHeaders(const QVariantMap &headers);
     void SetRequestHeaders(const QVariantList &headers);
     void SetRequestHeader(const QString &k, const QString &v);
+		QVariantMap RequestHeaders() const;
+		QString RequestHeader(const QString &name) const;
     
 signals:
     
@@ -81,7 +83,6 @@ private:
 
 private:
     idRequestHeaders oHeaders;
-    
 };
 
 class idDeclarativeNetworkAccessManagerFactory : public QDeclarativeNetworkAccessManagerFactory

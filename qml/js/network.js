@@ -38,10 +38,11 @@ var idNetwork = function(u, m, p, t)
         return r;
     }
 
-    this.MakeParams = function(ps){
+    this.MakeParams = function(ps, enc){
              if(!ps) return false;
 
              var arr = [];
+						 var ne = enc === undefined ? true : enc;
 
              switch(typeof(ps))
              {
@@ -53,7 +54,7 @@ var idNetwork = function(u, m, p, t)
                      else
                      {
                          for(var k in ps)
-                             arr.push(k + "=" + encodeURIComponent(ps[k].toString()));
+                             arr.push(k + "=" + (ne ? encodeURIComponent(ps[k].toString()) : ps[k].toString()));
                      }
                      return arr.join("&");
                  default:
@@ -74,7 +75,7 @@ var idNetwork = function(u, m, p, t)
                                  {
                                      var headers = ParseHeaders(xhr.getAllResponseHeaders());
                                      if(self._DBG & DBG_RESP)
-                                         console.log(responseText);
+                                         console.log(xhr.responseText);
                                      if(self._DBG & DBG_HEADER)
                                          Print_r(headers);
 																		 if(self.type === "JSON")

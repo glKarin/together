@@ -1,6 +1,8 @@
 import QtQuick 1.1
 import com.nokia.meego 1.1
 import "../component"
+import "../../js/util.js" as Util
+import "../../js/main.js" as Script
 
 Item{
 	id: root;
@@ -15,6 +17,7 @@ Item{
 	property string signature;
 	property string province;
 	property string city;
+	property string chatroomid;
 
 	property string markname;
 	property string groupname;
@@ -30,13 +33,21 @@ Item{
 	function _SetInfo(data)
 	{
 		var Keys = [
-			"uname", "nickname", "markname", "groupname", "avatar", "signature", "sex", "province", "city", "verify", "pinyin",
+			"uname", "nickname", "markname", "groupname", "avatar", "signature", "sex", "province", "city", "verify", "pinyin", "chatroomid",
 			"pinyin_head",
 		];
 		for(var i in Keys)
 		{
 			var name = Keys[i];
 			if(data[name] !== undefined) root[name] = data[name];
+		}
+
+		Util.ModelClear(member.model);
+		if(Script.idAPI.IsGroupUname(data["uname"]))
+		{
+			Util.ModelForeach(data.member_list, function(e){
+				Util.ModelPush(member.model, e);
+			});
 		}
 	}
 
@@ -54,6 +65,14 @@ Item{
 		cache: false;
 		z: 1;
 		source: root.avatar;
+		onStatusChanged: {
+			if(status == Image.Error)
+			{
+				var url = Qt.resolvedUrl("../../resc/background_profile.png");
+				if(preview.source != url)
+				preview.source = url;
+			}
+		}
 		MouseArea{
 			anchors.fill: parent;
 			onClicked: {
@@ -73,19 +92,13 @@ Item{
 		border.color: constants._cThemeColor;
 		color: constants._cTransparent;
 		z: 2;
-		Image{
+		AvatarWidget{
 			id: avatar;
 			anchors.centerIn: parent;
 			height: parent.height - parent.border.width;
 			width: height;
 			cache: false;
-			sourceSize.width: width;
-			sourceSize.height: height;
 			source: root.avatar;
-			smooth: true;
-		}
-		MouseArea{
-			anchors.fill: parent;
 			onClicked: {
 				root.avatarClicked();
 			}
@@ -189,6 +202,17 @@ Item{
 					clip: true;
 					color: constants._cSecondaryColor;
 					text: root.signature;
+				}
+			}
+
+			GroupMemberWidget{
+				id: member;
+				anchors.horizontalCenter: parent.horizontalCenter;
+				width: parent.width - constants._iSpacingXXL * 2;
+				visible: Script.idAPI.IsGroupUname(root.uname);
+				sChatRoomId: root.chatroomid;
+				onClicked: {
+					controller._OpenUserPage(uname + (chatroomid ? " " + chatroomid : ""));
 				}
 			}
 

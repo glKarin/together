@@ -42,7 +42,8 @@ function Init(object)
 function Reset()
 {
 	idAPI_HOST = "";
-	_UT.SetRequestHeader("Referer", "https://" + idAPI.MakeHost() + "/");
+	idAPI.SetHost();
+	_UT.SetReferer();
 }
 
 function Request(url, method, args, success, fail, type)
@@ -51,6 +52,11 @@ function Request(url, method, args, success, fail, type)
 
     req.Request(success, fail);
 		return req;
+}
+
+function L(name)
+{
+	return _UT.Lang(name);
 }
 
 function HandleRetCode(code, func)
@@ -153,9 +159,10 @@ function GetLoginState(data, success, fail)
 function GetLoginRedirect(data, success, fail)
 {
 	// set host
-	idAPI_HOST = idAPI.GetHost(data.HOST);
+	idAPI.SetHost(data.HOST); //k idAPI_HOST = idAPI.GetHost(data.HOST);
 	var api = data.SCHEME + "://" + data.HOST + data.PATH;
-	_UT.SetRequestHeader("Referer", "https://" + idAPI.MakeHost(idAPI_HOST) + "/");
+	console.log("[Qml]: Set referer -> " + idAPI.MakeHost());
+	_UT.SetReferer(idAPI.MakeHost(/*idAPI_HOST*/));
 
 	var f = function(message){
 		if(typeof(fail) === "function")
@@ -332,7 +339,7 @@ function GetUserContact(data, success, fail)
 			continue;
 		var item = {
 			UserName: data.list[i],
-			EncryChatRoomId: "",
+			EncryChatRoomId: data["chatroomid"] || "",
 		};
 		opt.List.push(item);
 	}
@@ -370,23 +377,9 @@ function GetSendData(data, success, fail)
 				f("Make send data fail");
 				return;
 			}
-
-			d.msg_type = data.type;
-			d.from = globals.uname;
-			d.to = data.uname;
-			d.content = data.content;
-			d.avatar = "";
-			d.name = "";
-			d.ts = Date.now() / 1000;
-			d.ts_str= MakeTimestamp(d.ts);
-			var c = MakeSessionId(d.from, d.to);
-			d.session = c.session;
-			d.type = c.type;
-			d.group = idAPI.IsGroupUname(d.to) ? d.to : false;
 			success(d);
 		}
 	}
-	var id = "" + Date.now() + Random(1000, 9999);
 	var get_opt = {
 		pass_ticket: globals.pass_ticket,
 	};
@@ -396,9 +389,8 @@ function GetSendData(data, success, fail)
 		Content: data.content,
 		FromUserName: globals.uname,
 		ToUserName: data.uname,
-		LocalID: id,
-		ClientMsgId: id,
-		MedieId: data.media || "",
+		LocalID: data.local_id,
+		ClientMsgId: data.local_id,
 	};
 	opt.Scene = 0;
 	Request(idAPI.MakeAPI(idAPI.SEND) + "?" + new idNetwork().MakeParams(get_opt), "POST", JSON.stringify(opt), s, f);
@@ -463,8 +455,48 @@ function GetSyncData(data, success, fail)
 		{
 			return;
 		}
+		var IMG_H = 128;
 		var msg = [];
 		idAPI.MakeSyncData(json, msg);
+		for(var i in msg)
+		{
+			var d = msg[i];
+			var content = d.content;
+			var mediaId = d.media_id;
+			if(!d.media_id)
+			{
+				if(d.msg_type == 3 || d.msg_type == 34 || d.msg_type == 43)
+					d.media_id = content;
+			}
+			if(d.msg_type == 3)
+			{
+				var p = CaleImageZoomFactory(d.img_width, d.img_height, IMG_H, IMG_H);
+				if(p > 0)
+				d.content = "<a href='_View_image'><img src='%1' width='%2' height='%3'/></a>".arg(idAPI.MakeThumbnailUrl(d.mid, globals.skey)).arg(d.img_width * p).arg(d.img_height * p);
+				else
+				d.content = "<a href='_View_image'><img src='%1' height='%2'/></a>".arg(idAPI.MakeThumbnailUrl(d.mid, globals.skey)).arg(IMG_H);
+			}
+			else if(d.msg_type == 43)
+			{
+				var p = CaleImageZoomFactory(d.img_width, d.img_height, IMG_H, IMG_H)
+				if(p > 0)
+				d.content = ("<a href='_Play_video'><img src='%1' width='%2' height='%3'><br/>" + L("Click to play video") + "(%4)</img></a>").arg(idAPI.MakeThumbnailUrl(d.mid, globals.skey)).arg(d.img_width * p).arg(d.img_height * p).arg(FormatDuration(d.play_length));
+				else
+				d.content = ("<a href='_Play_video'><img src='%1' height='%2'><br/>" + L("Click to play video") + "(%3)</img></a>").arg(idAPI.MakeThumbnailUrl(d.mid, globals.skey)).arg(IMG_H).arg(FormatDuration(d.play_length));
+			}
+			else if(d.msg_type == 34)
+				d.content = ("<a href='_Play_audio'>" + L("Voice message") + "(%1)&nbsp;<img src='../../resc/icon_voice.png'/></a>").arg(FormatDuration(Math.ceil(d.voice_length / 1000)));
+			else if(d.msg_type == 47)
+			{
+				var p = CaleImageZoomFactory(d.img_width, d.img_height, IMG_H, IMG_H)
+				if(p > 0)
+				d.content = "<a href='_View_emoji'><img src='%1' width='%2' height='%3'/></a>".arg(idAPI.MakeThumbnailUrl(d.mid, globals.skey, "big")).arg(d.img_width).arg(d.img_height);
+				else
+				d.content = "<a href='_View_emoji'><img src='%1' height='%2'/></a>".arg(idAPI.MakeThumbnailUrl(d.mid, globals.skey, "big")).arg(d.img_height);
+			}
+			else if(d.msg_type == 49)
+				d.content = (L("File") + ": %1(%2)<br/><a href='_Down_files'>" + L("Click to download") + "</a>").arg(d.file_name).arg(FormatFileSize(d.file_size));
+		}
 		var d = {
 			synckey: json.SyncKey,
 			msgModel: msg,
@@ -506,6 +538,378 @@ function GetLogout(data, success, fail)
 		uin: globals.wxuin,
 	};
 	Request(idAPI.MakeAPI(idAPI.LOGOUT) + "?" + new idNetwork().MakeParams(get_opt), "POST", opt, s, f, "TEXT");
+}
+
+function GetRevokeData(data, success, fail)
+{
+	var f = function(message){
+		if(typeof(fail) === "function")
+			fail(message);
+	};
+	if(!globals._IsValid())
+	{
+		f("Not login");
+		return;
+	}
+	var s = function(json){
+		var res = idAPI.CheckResponse(json);
+		if(HandleRetCode(res, f))
+		{
+			return;
+		}
+		var d = new Object();
+		idAPI.MakeRevokeInfo(json, d);
+		if(typeof(success) === "function") success(d);
+	}
+	var get_opt = {
+		pass_ticket: globals.pass_ticket,
+	};
+	var opt = globals._MakeBaseRequest();
+	opt.ClientMsgId = data.local_id;
+	opt.SvrMsgId = data.mid;
+	opt.ToUserName = data.uname;
+	Request(idAPI.MakeAPI(idAPI.REVOKE) + "?" + new idNetwork().MakeParams(get_opt), "POST", JSON.stringify(opt), s, f);
+}
+
+function GetSendImgData(data, success, fail)
+{
+	var f = function(message){
+		if(typeof(fail) === "function")
+			fail(message);
+	};
+	if(!globals._IsValid())
+	{
+		f("Not login");
+		return;
+	}
+	var s = function(json){
+		var res = idAPI.CheckResponse(json);
+		if(HandleRetCode(res, f))
+		{
+			return;
+		}
+		if(typeof(success) === "function")
+		{
+			var d = new Object();
+			if(!idAPI.MakeSendData(json, d))
+			{
+				f("Make send data fail");
+				return;
+			}
+			success(d);
+		}
+	}
+	var get_opt = {
+		pass_ticket: globals.pass_ticket,
+		fun: "async",
+		f: "json",
+	};
+	var opt = globals._MakeBaseRequest();
+	opt.Msg = {
+		Type: 3,
+		Content: "",
+		FromUserName: globals.uname,
+		ToUserName: data.uname,
+		LocalID: data.local_id,
+		ClientMsgId: data.local_id,
+		MediaId: data.media_id,
+	};
+	opt.Scene = 0;
+	Request(idAPI.MakeAPI(idAPI.IMAGE) + "?" + new idNetwork().MakeParams(get_opt), "POST", JSON.stringify(opt), s, f);
+}
+
+function GetSendVideoData(data, success, fail)
+{
+	var f = function(message){
+		if(typeof(fail) === "function")
+			fail(message);
+	};
+	if(!globals._IsValid())
+	{
+		f("Not login");
+		return;
+	}
+	var s = function(json){
+		var res = idAPI.CheckResponse(json);
+		if(HandleRetCode(res, f))
+		{
+			return;
+		}
+		if(typeof(success) === "function")
+		{
+			var d = new Object();
+			if(!idAPI.MakeSendData(json, d))
+			{
+				f("Make send data fail");
+				return;
+			}
+			success(d);
+		}
+	}
+	var get_opt = {
+		pass_ticket: globals.pass_ticket,
+		fun: "async",
+		f: "json",
+	};
+	var opt = globals._MakeBaseRequest();
+	opt.Msg = {
+		Type: 43,
+		Content: "",
+		FromUserName: globals.uname,
+		ToUserName: data.uname,
+		LocalID: data.local_id,
+		ClientMsgId: data.local_id,
+		MediaId: data.media_id,
+	};
+	opt.Scene = 0;
+	Request(idAPI.MakeAPI(idAPI.VIDEO) + "?" + new idNetwork().MakeParams(get_opt), "POST", JSON.stringify(opt), s, f);
+}
+
+function GetSendFileData(data, success, fail)
+{
+	var f = function(message){
+		if(typeof(fail) === "function")
+			fail(message);
+	};
+	if(!globals._IsValid())
+	{
+		f("Not login");
+		return;
+	}
+	var s = function(json){
+		var res = idAPI.CheckResponse(json);
+		if(HandleRetCode(res, f))
+		{
+			return;
+		}
+		if(typeof(success) === "function")
+		{
+			var d = new Object();
+			if(!idAPI.MakeSendData(json, d))
+			{
+				f("Make send data fail");
+				return;
+			}
+			success(d);
+		}
+	}
+	var get_opt = {
+		pass_ticket: globals.pass_ticket,
+		fun: "async",
+		f: "json",
+	};
+	var opt = globals._MakeBaseRequest();
+	opt.Msg = {
+		Type: 6,
+		Content: "<appmsg appid='%1' sdkver=''><title>%2</title><des></des><action></action><type>6</type><content></content><url></url><lowurl></lowurl><appattach><totallen>%3</totallen><attachid>%4</attachid><fileext>%5</fileext></appattach><extinfo></extinfo></appmsg>".arg(idAPI.APPID).arg(data.file_name).arg(data.file_size.toFixed()).arg(data.media_id).arg(data.file_suffix),
+		FromUserName: globals.uname,
+		ToUserName: data.uname,
+		LocalID: data.local_id,
+		ClientMsgId: data.local_id,
+		MediaId: data.media_id,
+	};
+	opt.Scene = 0;
+	Request(idAPI.MakeAPI(idAPI.FILES) + "?" + new idNetwork().MakeParams(get_opt), "POST", JSON.stringify(opt), s, f);
+}
+
+function GetSendEmojiData(data, success, fail)
+{
+	var f = function(message){
+		if(typeof(fail) === "function")
+			fail(message);
+	};
+	if(!globals._IsValid())
+	{
+		f("Not login");
+		return;
+	}
+	var s = function(json){
+		var res = idAPI.CheckResponse(json);
+		if(HandleRetCode(res, f))
+		{
+			return;
+		}
+		if(typeof(success) === "function")
+		{
+			var d = new Object();
+			if(!idAPI.MakeSendData(json, d))
+			{
+				f("Make send data fail");
+				return;
+			}
+			success(d);
+		}
+	}
+	var get_opt = {
+		pass_ticket: globals.pass_ticket,
+		fun: "sys",
+		lang: "zh_CN"
+	};
+	var opt = globals._MakeBaseRequest();
+	opt.Msg = {
+		Type: 47,
+		EmojiFlag: 2,
+		FromUserName: globals.uname,
+		ToUserName: data.uname,
+		LocalID: data.local_id,
+		ClientMsgId: data.local_id,
+		MediaId: data.media_id,
+	};
+	opt.Scene = 0;
+	Request(idAPI.MakeAPI(idAPI.EMOJI) + "?" + new idNetwork().MakeParams(get_opt), "POST", JSON.stringify(opt), s, f);
+}
+
+function GetSendMediaData(data, success, fail)
+{
+	var f = function(message){
+		if(typeof(fail) === "function")
+			fail(message);
+	};
+	if(!globals._IsValid())
+	{
+		f("Not login");
+		return;
+	}
+	var s = function(json){
+		var res = idAPI.CheckResponse(json);
+		if(HandleRetCode(res, f))
+		{
+			return;
+		}
+		if(typeof(success) === "function")
+		{
+			var d = new Object();
+			if(!idAPI.MakeSendData(json, d))
+			{
+				f("Make send data fail");
+				return;
+			}
+			success(d);
+		}
+	}
+
+	var type = 6;
+	var api = idAPI.FILES;
+	if(data.msg_type == 3)
+	{
+		type = 3;
+		api = idAPI.IMAGE;
+	}
+	else if(data.msg_type == 43)
+	{
+		type = 43;
+		api = idAPI.VIDEO;
+	}
+	else if(data.msg_type == 47)
+	{
+		type = 47;
+		api = idAPI.EMOJI;
+	}
+	var content = type == 6 ? "<appmsg appid='%1' sdkver=''><title>%2</title><des></des><action></action><type>6</type><content></content><url></url><lowurl></lowurl><appattach><totallen>%3</totallen><attachid>%4</attachid><fileext>%5</fileext></appattach><extinfo></extinfo></appmsg>".arg(idAPI.APPID).arg(data.file_name).arg(data.file_size.toFixed()).arg(data.media_id).arg(data.file_suffix) : "";
+
+	var get_opt = {
+		pass_ticket: globals.pass_ticket,
+		fun: type === 47 ? "sys" : "async",
+		f: "json",
+		lang: "zh_CN",
+	};
+	var opt = globals._MakeBaseRequest();
+	opt.Msg = {
+		Type: type,
+		FromUserName: globals.uname,
+		ToUserName: data.uname,
+		LocalID: data.local_id,
+		ClientMsgId: data.local_id,
+		MediaId: data.media_id,
+	};
+	if(type === 47)
+		opt.Msg.EmojiFlag = 2;
+	else
+		opt.Msg.Content = content;
+	opt.Scene = 0;
+	Request(idAPI.MakeAPI(api) + "?" + new idNetwork().MakeParams(get_opt), "POST", JSON.stringify(opt), s, f);
+}
+
+
+
+// media
+function GetMediaUrl(type, mid)
+{
+	var a = "";
+	var opt = {
+		skey: globals.skey,
+	};
+	switch(type)
+	{
+		case 3: 
+			a = idAPI.MEDIA_IMAGE; 
+			opt.MsgID = mid;
+			break;
+		case 34: 
+			a = idAPI.MEDIA_VOICE; 
+			opt.msgid = mid;
+			break;
+		case 43: 
+			a = idAPI.MEDIA_VIDEO; 
+			opt.msgid = mid;
+			break;
+		case 47: 
+			a = idAPI.MEDIA_IMAGE; 
+			opt.MsgID = mid;
+			opt.type = "big";
+			break;
+		default:
+			break;
+	}
+	if(a === "")
+		return false;
+
+	return idAPI.MakeAPI(a) + "?" + new idNetwork().MakeParams(opt);
+}
+
+function GetFileUrl(media_id, file_name)
+{
+	var opt = {
+		//mediaid: media_id, // mediaid not encode for @
+		sender: "",
+		fromuser: "",
+		pass_ticket: globals.pass_ticket,
+		webwx_data_ticket: globals.webwx_data_ticket,
+		encryfilename: file_name,
+	};
+	return idAPI.MakeAPI(idAPI.MEDIA_FILES) + "?" + new idNetwork().MakeParams(opt) + "&mediaid=" + media_id;
+}
+
+function GetDownloadUrl(type, mid, mediaId, fileName)
+{
+	if(type == 3 || type == 34 || type == 43 || type == 47)
+	{
+		return GetMediaUrl(type, mid);
+	}
+	else if(type == 49)
+	{
+		return GetFileUrl(mediaId, fileName);
+	}
+	return false;
+}
+
+function GetUploadUrl(type)
+{
+	return idAPI.MakeAPI(idAPI.MEDIA_UPLOAD) + "?f=json";
+}
+
+function GetAvatarUrl(uname, roomid)
+{
+	var opt = {
+		seq: 0,
+		username: uname,
+		skey: globals.skey
+	};
+
+	var g = idAPI.IsGroupUname(uname);
+	if(roomid && !g)
+		opt.chatroomid = roomid;
+	return idAPI.MakeAPI(g ? idAPI.HEADIMG : idAPI.ICON) + "?" + new idNetwork().MakeParams(opt, false);
 }
 
 

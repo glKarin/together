@@ -16,11 +16,12 @@ Item{
 	property int iBottomMargin: 0;
 	property alias currentIndex: view.currentIndex;
 	signal clicked(string name, string value, int index);
+	signal selected(string name, string value, int index); // only emit clicked and index changed
 	objectName: "idTabListWidget";
 
 	function _LoadModel(jsarr, limit)
 	{
-		view.model.clear();
+		Util.ModelClear(view.model);
 		for(var i in jsarr)
 		{
 			if(limit && i >= limit) break;
@@ -41,6 +42,8 @@ Item{
 		delegate: Component{
 			Item{
 				id: delegateroot;
+				property string __name:  model.name !== undefined ? model.name : modelData.name;
+				property string __value:  model.value !== undefined ? model.value : modelData.value;
 				property int iLineWidth: constants._iSpacingMedium;
 				width: root.bTabMode ? (ListView.view.count > 0 ? ListView.view.width / ListView.view.count : ListView.view.width) : constants._iSizeXXXL;
 				height: ListView.view.height;
@@ -50,8 +53,10 @@ Item{
 					onClicked: {
 						if(root.bInteractive)
 						{
+							var b = view.currentIndex != index;
 							view.currentIndex = index;
-							root.clicked(model.name, model.value, index);
+							if(b) root.selected(delegateroot.__name, delegateroot.__value, index);
+							root.clicked(delegateroot.__name, delegateroot.__value, index);
 						}
 					}
 				}
@@ -76,10 +81,10 @@ Item{
 					horizontalAlignment: Text.AlignHCenter;
 					verticalAlignment: Text.AlignVCenter;
 					elide: Text.ElideLeft;
-					color: root.bInvertedMode ? constants._cPrimaryColor : root.cTextColor;
+					color: root.cTextColor;
 					font.pixelSize: constants._iFontXL;
 					font.bold: delegateroot.ListView.isCurrentItem;
-					text: model.name;
+					text: delegateroot.__name;
 				}
 				Rectangle{
 					id: line;
@@ -87,7 +92,7 @@ Item{
 					anchors.left: parent.left;
 					anchors.right: parent.right;
 					height: iLineWidth;
-					color: root.bInvertedMode ? constants._cPrimaryColor : root.cLineColor;
+					color: root.cLineColor;
 					visible: (!root.bInvertedMode && !delegateroot.ListView.isCurrentItem) || (root.bInvertedMode && delegateroot.ListView.isCurrentItem);
 				}
 			}

@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QVariant>
 
-class QDeclarativeEngine;
 class QNetworkReply;
 class QNetworkRequest;
 class QNetworkAccessManager;
@@ -39,15 +38,16 @@ enum idErrorType_e
 };
 
 public:
+    explicit idNetworkConnector(QObject *parent = 0);
     virtual ~idNetworkConnector();
     Q_INVOKABLE QString Request(const QString &url, const QString &field, const QByteArray &data = QByteArray(), int type = 0, const QVariant &headers = QVariant());
-    void SetRequestHeaders(QNetworkRequest *req, const QVariantMap &headers);
-    void SetRequestHeaders(QNetworkRequest *req, const QVariantList &headers);
-		void SetEngine(QDeclarativeEngine *engine);
-		QDeclarativeEngine * Engine();
+		Q_INVOKABLE QString Request_sync(const QString &url, const QByteArray &data = QByteArray(), int type = 0, const QVariant &headers = QVariant());
+		int SyncRequest(const QString &url, const QList<QPair<QByteArray, QByteArray> > &querys = QList<QPair<QByteArray, QByteArray> >(), const QByteArray &data = QByteArray(), int type = 0, const QVariant &headers = QVariant(), QByteArray *r = 0, bool redirect = true);
 		static idNetworkConnector * Instance();
 		Q_INVOKABLE QString ErrorString(int err) const;
 		id::idReplyHash_t Replys() const;
+		static QByteArray MakePostData(const QVariantMap &map);
+		static int SyncRequest_thread(const QString &url, const QList<QPair<QByteArray, QByteArray> > &querys = QList<QPair<QByteArray, QByteArray> >(), const QByteArray &data = QByteArray(), int type = 0, const QVariant &headers = QVariant(), QByteArray *r = 0, bool redirect = true);
 
 Q_SIGNALS:
 		void finished(const QString &name, int error, const QString &value);
@@ -56,11 +56,11 @@ private Q_SLOTS:
 	void finishedSLOT();
     
 private:
-    explicit idNetworkConnector(QObject *parent = 0);
-		QNetworkAccessManager * Manager();
+		QNetworkAccessManager * NetworkManager();
+    static void SetRequestHeaders(QNetworkRequest *req, const QVariantMap &headers);
+    static void SetRequestHeaders(QNetworkRequest *req, const QVariantList &headers);
 
 private:
-		QDeclarativeEngine *oEngine;
 		id::idReplyHash_t tReplys;
     
 };

@@ -7,6 +7,7 @@ Page {
 	property bool bBusy: false;
 	property bool bFull: false;
 	property bool bLock: false;
+	property bool bPopI: false;
 	property string sTitle;
 	property int eIconMode: 1;
 	property Item menus: null;
@@ -46,7 +47,7 @@ Page {
 		visible: (pageStack != null && pageStack.depth > 1) && (root.eIconMode & 1 !== 0);
 		onClicked: {
 			root.iconClicked(1);
-			pageStack.pop();
+			pageStack.pop(undefined, root.bPopI);
 		}
 	}
 	ToolIcon{

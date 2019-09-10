@@ -6,7 +6,7 @@ DEPLOYMENTFOLDERS = folder_01
 # Additional import path used to resolve QML modules in Creator's code model
 QML_IMPORT_PATH =
 
-symbian:TARGET.UID3 = 0xE10C53ED
+symbian:TARGET.UID3 = 0xE0643D87
 
 # Smart Installer package's UID
 # This UID is from the protected range and therefore the package will
@@ -33,19 +33,29 @@ js.source = qml/js
 js.target = qml
 DEPLOYMENTFOLDERS += js
 
-QT += declarative network sql webkit xml dbus
+QT += declarative network sql webkit xml
 CONFIG += mobility
-MOBILITY += multimedia
+MOBILITY += multimedia gallery systeminfo
 INCLUDEPATH += . src src/qtm
 DEFINES += _KARIN_MM_EXTENSIONS
 MOC_DIR = .moc
 OBJECTS_DIR = .obj
-
 DEFINES += _HARMATTAN
 #DEFINES += _DBG
 DEFINES += _MAEMO_MEEGOTOUCH_INTERFACES_DEV
 CONFIG += videosuiteinterface-maemo-meegotouch meegotouch
 PKGCONFIG += zlib
+#DEFINES += _VHAS_LIBQJSON_DEV
+
+!contains(DEFINES, _VHAS_LIBQJSON_DEV) {
+include(qjson/qjson.pro)
+DEFINES += _LOCAL_QJSON_DEV
+INCLUDEPATH += $${QJSON_BASEDIR}
+DEPENDPATH += $${QJSON_BASEDIR}
+DEFINES += QJSON_MAKEDLL
+} else {
+LIBS += -lqjson
+}
 
 contains(DEFINES, _KARIN_MM_EXTENSIONS) {
 HEADERS += \
@@ -60,36 +70,69 @@ src/qtm/qdeclarativevideo.cpp \
 src/qtm/qpaintervideosurface.cpp
 }
 
+contains(MEEGO_EDITION,harmattan){
+PKGCONFIG += zlib
+QT += dbus
+DEFINES += _HARMATTAN
+DEFINES += _MAEMO_MEEGOTOUCH_INTERFACES_DEV
+CONFIG += videosuiteinterface-maemo-meegotouch meegotouch
+#DEFINES += _VHAS_LIBQJSON_DEV
 
+eventtype.files = misc/together.conf
+eventtype.path = /usr/share/meegotouch/notifications/eventtypes
+mime.files = misc/mime.types
+mime.path = /opt/together/misc
+
+INSTALLS += eventtype mime
+
+icons.files = \
+misc/icon-m-low-power-mode-together.png \
+misc/icon-s-status-notifier-together.png \
+misc/icon-m-service-together.png \     
+misc/icon-s-status-together.png
+icons.path = /usr/share/themes/blanco/meegotouch/icons
+}
+
+simulator {
+DEFINES += _SIMULATOR
+INCLUDEPATH += libs\include
+LIBS += -LD:\qobj\q\weibomm\libs -lzlib1
+}
+
+symbian {
+}
 
 # The .cpp file which was generated for your project. Feel free to hack it.
 SOURCES += main.cpp \
     src/utility.cpp \
     src/networkmanager.cpp \
     src/networkconnector.cpp \
-                src/id_std.cpp \
-                src/pipeline.cpp \
+		src/id_std.cpp \
+		src/pipeline.cpp \
+		src/qmlimage.cpp \
+		src/qmlmodel_base.cpp \
+		src/transfermanager.cpp \
+		src/transfertask_base.cpp \
+		src/downloadtask.cpp \
+		src/uploadtask.cpp \
+		src/cache.cpp \
+		src/database.cpp \
+		src/transferrecord.cpp \
+		src/filemodel.cpp \
+		src/audiorecorder.cpp \
     src/qtm/qdeclarativewebview.cpp
 
-splash.files = res/together.jpg
-splash.path = /opt/together/res
+splash.files = misc/together.jpg
+splash.path = /opt/together/misc
 
 i18n.source = i18n
 i18n.target = .
 
-icons.files = \
-notification/icon-m-low-power-mode-together.png \
-notification/icon-s-status-notifier-together.png \
-notification/icon-m-service-together.png \
-notification/icon-s-status-together.png
-icons.path = /usr/share/themes/blanco/meegotouch/icons
+resc.source = qml/resc
+resc.target = qml
 
-eventtype.files = notification/together.conf
-eventtype.path = /usr/share/meegotouch/notifications/eventtypes
+DEPLOYMENTFOLDERS += i18n resc
 
-DEPLOYMENTFOLDERS += i18n
-
-#INSTALLS += icons eventtype
 INSTALLS += splash
 
 # Please do not modify the following two lines. Required for deployment.
@@ -110,5 +153,16 @@ HEADERS += \
     src/networkmanager.h \
     src/networkconnector.h \
     src/id_std.h \
-                src/pipeline.h \
+		src/pipeline.h \
+		src/qmlimage.h \
+		src/qmlmodel_base.h \
+		src/transfermanager.h \
+		src/transfertask_base.h \
+		src/downloadtask.h \
+		src/uploadtask.h \
+		src/cache.h \
+		src/database.h \
+		src/transferrecord.h \
+		src/filemodel.h \
+		src/audiorecorder.h \
     src/qtm/qdeclarativewebview.h

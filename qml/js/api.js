@@ -2,7 +2,9 @@
 
 Qt.include("util.js");
 
-var idAPI_HOST = "";
+var idAPI_HOST = ""; // UNUSED
+var idAPI_Domain = "wx.qq.com";
+var idAPI_SCHEME = "https://";
 
 var __JSON_Print = function(json)
 {
@@ -65,16 +67,32 @@ var idWebAPI = {
 	SEND: "https://%1/cgi-bin/mmwebwx-bin/webwxsendmsg",
 	LOGOUT: "https://%1/cgi-bin/mmwebwx-bin/webwxlogout",
 
+	REVOKE: "https://%1/cgi-bin/mmwebwx-bin/webwxrevokemsg",
+	ICON: "https://%1/cgi-bin/mmwebwx-bin/webwxgeticon", //?seq=0&username=&skey=
+	HEADIMG: "https://%1/cgi-bin/mmwebwx-bin/webwxgetheadimg", //?seq=0&username=&skey=
+
+		// download
+	MEDIA_VOICE: "https://%1/cgi-bin/mmwebwx-bin/webwxgetvoice", //?msgid=7651226812254275964&skey=@crypt_c588d4eb_2bde91f73e0c3a8b66e5e9227b3b81fb
+	MEDIA_VIDEO: "https://%1/cgi-bin/mmwebwx-bin/webwxgetvideo", //?msgid=1257559779536239062&skey=%40crypt_c588d4eb_7007ee9130519c606326d371ad3a6302
+	MEDIA_IMAGE: "https://%1/cgi-bin/mmwebwx-bin/webwxgetmsgimg", // ?&MsgID=9053721599568297579&skey=%40crypt_c588d4eb_f87e6a0ec51a15ccb0e4a3f227178c51&type=slave
+	MEDIA_FILES: "https://file.%2/cgi-bin/mmwebwx-bin/webwxgetmedia", // ?sender=NOT_NECC&mediaid=MediaID&encryfilename=FileName&fromuser=1937268380&pass_ticket=PASS_TICKET&webwx_data_ticket=WEBWX_DATA_TICKET
+	MEDIA_UPLOAD: "https://file.%1/cgi-bin/mmwebwx-bin/webwxuploadmedia", //?f=json
+	VIDEO: "https://%1/cgi-bin/mmwebwx-bin/webwxsendvideomsg", //?fun=async&f=json&pass_ticket=
+	IMAGE: "https://%1/cgi-bin/mmwebwx-bin/webwxsendmsgimg", //?fun=async&f=json&pass_ticket=
+	FILES: "https://%1/cgi-bin/mmwebwx-bin/webwxsendappmsg", //?fun=async&f=json&pass_ticket=
+	EMOJI: "https://%1/cgi-bin/mmwebwx-bin/webwxsendemoticon", //?fun=sys&lang=zh_CN&pass_ticket=
+
+
 
 
 	MakeHost: function(v){
-		return this.WX_QQ_COM.arg(v ? v : "");
+		return v !== undefined ? this.WX_QQ_COM.arg(v ? v : "") : idAPI_Domain;
 	},
 
 	MakeImgPath: function(pic){
 		if(pic.indexOf("http://") !== -1 || pic.indexOf("https://") !== -1)
 			return pic;
-		return "https://wx.qq.com" + pic;
+		return this.MakeAPI("https://%1" + pic);
 	},
 
 	MakeContent: function(c){
@@ -278,6 +296,18 @@ var idWebAPI = {
 			r.nickname = nn.join(",");
 		}
 
+		r.chatroomid = e.EncryChatRoomId;
+		r.member_list = [];
+		for(var i in e.MemberList)
+		{
+			var ee = e.MemberList[i];
+			var item = {
+				uname: ee.UserName,
+				nickname: ee.NickName
+			};
+			r.member_list.push(item);
+		}
+
 		r.msg = [];
 		r.unread = 0;
 		r.unsend = "";
@@ -365,6 +395,17 @@ var idWebAPI = {
 				name: "",
 				ts: e.CreateTime,
 				ts_str: MakeTimestamp(e.CreateTime),
+
+				status: 0,
+				progress: 0.0,
+				file: "",
+				file_size: e.FileSize,
+				file_name: e.FileName,
+				media_id: e.MediaId,
+				img_width: e.ImgWidth,
+				img_height: e.ImgHeight,
+				voice_length: e.VoiceLength,
+				play_length: e.PlayLength,
 			};
 			var c = MakeSessionId(e.FromUserName, e.ToUserName);
 			item.session = c.session;
@@ -386,7 +427,7 @@ var idWebAPI = {
 	},
 
 	MakeAPI: function(a, v){
-		var h = this.MakeHost(v !== undefined ? v : idAPI_HOST);
+		var h = this.MakeHost(v);
 		return a.arg(h);
 	},
 
@@ -394,6 +435,39 @@ var idWebAPI = {
 		var p = /^wx(\w*)\.qq\.com/i;
 		var m = host.match(p);
 		return m ? m[1] : "";
+	},
+
+	SetHost: function(host){
+		idAPI_Domain = host ? host : "wx.qq.com";
+	},
+
+	MakeThumbnailUrl: function(msgid, skey, type){
+		return (this.MakeAPI(this.MEDIA_IMAGE) + "?MsgID=%1&skey=%2&type=%3").arg(encodeURIComponent(msgid)).arg(encodeURIComponent(skey)).arg(type ? type : "slave");
+	},
+
+	MakeImageUrl: function(msgid, skey){
+		return (this.MakeAPI(this.MEDIA_IMAGE) + "?MsgID=%1&skey=%2").arg(encodeURIComponent(msgid)).arg(encodeURIComponent(skey));
+	},
+	MakeVoiceUrl: function(msgid, skey){
+		return (this.MakeAPI(this.MEDIA_VOICE) + "?msgid=%1&skey=%2").arg(encodeURIComponent(msgid)).arg(encodeURIComponent(skey));
+	},
+	MakeVideoUrl: function(msgid, skey){
+		return (this.MakeAPI(this.MEDIA_VIDEO) + "?msgid=%1&skey=%2").arg(encodeURIComponent(msgid)).arg(encodeURIComponent(skey));
+	},
+	MakeFilesUrl: function(mediaId, passTicket, webwxDataTicket, fileName, sender, fromuser){
+		return (this.MakeAPI(this.MEDIA_FILES) + "?sender=&mediaid=%1&encryfilename=%2&fromuser=&pass_ticket=%3&webwx_data_ticket=%4").arg(mediaId).arg(encodeURIComponent(fileName)).arg(encodeURIComponent(passTicket)).arg(encodeURIComponent(webwxDataTicket));
+	}, // mediaid not encode for @
+
+	MakeRevokeInfo: function(json, ret){
+		if(!json)
+			return false;
+
+		var r = ret ? ret : {};
+
+		r.introduction = json.Introduction;
+		r.sys_wording = json.SysWording;
+
+		return ret ? true : r;
 	},
 
 };

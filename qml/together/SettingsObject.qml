@@ -22,6 +22,9 @@ QtObject {
 	property bool bCheckUpdate: _UT.GetSetting("generals/check_update");
 	onBCheckUpdateChanged: _UT.SetSetting("generals/check_update", bCheckUpdate);
 
+	property string sLastFileSystemPath: _UT.GetSetting("generals/last_file_system_path");
+	onSLastFileSystemPathChanged: _UT.SetSetting("generals/last_file_system_path", sLastFileSystemPath);
+
 
 
 	property int iSyncInterval: _UT.GetSetting("chat/sync_interval");
@@ -38,6 +41,9 @@ QtObject {
 
 	property bool bOnlineCheck: _UT.GetSetting("chat/online_check");
 	onBOnlineCheckChanged: _UT.SetSetting("chat/online_check", bOnlineCheck);
+
+	property bool bShowNotification: _UT.GetSetting("chat/show_notification");
+	onBShowNotificationChanged: _UT.SetSetting("chat/show_notification", bShowNotification);
 
 
 
@@ -61,12 +67,14 @@ QtObject {
 		iDefaultBrowser = _UT.GetSetting("generals/default_browser");
 		bFullscreen = _UT.GetSetting("generals/fullscreen");
 		bCheckUpdate = _UT.GetSetting("generals/check_update");
+		sLastFileSystemPath = _UT.GetSetting("generals/last_file_system_path");
 
 		iSyncInterval = _UT.GetSetting("chat/sync_interval");
 		eRunMode = _UT.GetSetting("generals/run_mode");
 		iSyncBackground = _UT.GetSetting("chat/sync_background");
 		iOnlineBackground = _UT.GetSetting("chat/online_background");
 		bOnlineCheck = _UT.GetSetting("chat/online_check");
+		bShowNotification = _UT.GetSetting("chat/show_notification");
 
 		bBrowserHelper = _UT.GetSetting("browser/helper");
 		bBrowserDblZoom = _UT.GetSetting("browser/dbl_zoom");

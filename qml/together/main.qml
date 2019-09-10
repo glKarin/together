@@ -2,6 +2,7 @@ import QtQuick 1.1
 import com.nokia.meego 1.1
 import com.nokia.extras 1.1
 import "component"
+import "widget"
 import "../js/main.js" as Script
 import "../js/util.js" as Util
 
@@ -18,7 +19,6 @@ PageStackWindow {
 	}
 	initialPage: 
 	SplashPage
-	//SettingPage
 	{
 		id: mainpage
 	}
@@ -26,23 +26,7 @@ PageStackWindow {
 	Connections{
 		target: _UT;
 		onHasUpdate: {
-			var texts = [];
-			var updates = _UT.Changelog().CHANGES;
-			for(var i in updates)
-			{
-				texts.push({
-					text: updates[i],
-				});
-			}
-			controller._Info(
-				qsTr("Info"),
-				qsTr("Version") + ": " + version,
-				texts,
-				undefined,
-				function(link){
-					eval(link);
-				}
-			);
+			appobj._ShowUpdates(version);
 		}
 	}
 
@@ -56,87 +40,336 @@ PageStackWindow {
 		id: sessionmodel; // session model
 	}
 
+	VoiceWidget{
+		id: voice;
+	}
+
+	Connections{
+		id: transfer;
+		target: _TRANSFER;
+		property string __sessionId;
+		property string __msgId;
+
+		onDownloadStarted: {
+			sessionmodel._UpdateProgress(sessionId, msgId, {
+				status: 1,
+			});
+		}
+		onDownloadProgress: {
+			sessionmodel._UpdateProgress(sessionId, msgId, {
+				status: 1,
+				progress: progress,
+			});
+		}
+		onDownloadFinished: {
+			var p = {
+				status: error == 0 ? 0 : 2,
+			};
+			if(error == 0)
+			{
+				var task = _TRANSFER.GetTaskValue(msgId);
+				p.file = task ? task["FILE_PATH"] : "";
+			}
+			sessionmodel._UpdateProgress(sessionId, msgId, p);
+			transfer._End(sessionId, msgId, error);
+		}
+
+		function _Load(sessionId, msgId, mediaId, msgType, fileName, open)
+		{
+			if(!sessionId || !msgId) return;
+
+			if(open)
+			{
+				transfer.__sessionId = sessionId;
+				transfer.__msgId = msgId;
+			}
+
+			var task = _TRANSFER.GetTaskValue(msgId);
+			if(!task)
+			{
+				var url = Script.GetDownloadUrl(msgType, msgId, mediaId, fileName);
+				console.log("[Qml]: Media url -> " + url);
+				_TRANSFER.Download(url, msgId, mediaId, msgType, sessionId, fileName);
+			}
+			else
+			{
+				var status = task["STATUS"];
+				if(status == 2)
+				{
+					console.log("[Qml]: File has transfered -> " + task["FILE_PATH"]);
+					_Open(task["FILE_PATH"], msgType);
+				}
+				else if(status == 3)
+				{
+					_TRANSFER.Retransfer(msgId);
+				}
+				else
+				{
+					controller._ShowMessage(qsTr("File is transfering."));
+				}
+			}
+		}
+
+		function _End(sessionId, msgId, error)
+		{
+			if(sessionId !== transfer.__sessionId || msgId !== transfer.__msgId)
+			{
+				controller._ShowMessage(qsTr("File download successful."));
+				return;
+			}
+
+			transfer.__sessionId = "";
+			transfer.__msgId = "";
+
+			if(error != 0)
+			{
+				controller._ShowMessage(qsTr("File download error."));
+				return;
+			}
+
+			var task = _TRANSFER.GetTaskValue(msgId);
+			if(!task)
+			{
+				controller._ShowMessage(qsTr("File download error."));
+				return;
+			}
+
+			if(task["STATUS"] != 2)
+			{
+				controller._ShowMessage(qsTr("File download error."));
+				return;
+			}
+
+			_Open(task["FILE_PATH"], task["MSG_TYPE"], true);
+		}
+
+		function _Open(url, msgType, from_download_finished)
+		{
+			var p = "file://" + url;
+			if(msgType == 3)
+			controller._OpenImageViewer(p);
+			else if(msgType == 43)
+			controller._OpenVideoPlayer(p);
+			else if(msgType == 34)
+			voice._Load(p);
+			else if(msgType == 47)
+			controller._OpenImageViewer(p);
+			else if(msgType == 49)
+			{
+				if(from_download_finished)
+				controller._ShowMessage(qsTr("File download successful. File path is ") + url);
+				else
+				Qt.openUrlExternally(p);
+			}
+		}
+	}
+
+	Connections{
+		id: uploader;
+		target: _TRANSFER;
+
+		onUploadStarted: {
+			sessionmodel._UpdatePreProgress(sessionId, msgId, {
+				status: 1,
+			});
+		}
+		onUploadProgress: {
+			sessionmodel._UpdatePreProgress(sessionId, msgId, {
+				status: 1,
+				progress: progress,
+			});
+		}
+		onUploadFinished: {
+			sessionmodel._UpdatePreProgress(sessionId, msgId, {
+				status: error == 0 ? 0 : 2,
+			});
+			uploader._End(sessionId, msgId, error);
+		}
+
+		function _Load(sessionId, localId, msgType, path, params)
+		{
+			if(!sessionId || !localId) return;
+
+			var task = _TRANSFER.GetTaskValue(localId);
+			if(!task)
+			{
+				if(path && params)
+				{
+					var url = Script.GetUploadUrl(msgType);
+					console.log("[Qml]: File url -> " + path);
+					_TRANSFER.Upload(url, path, localId, msgType, sessionId, params);
+				}
+			}
+			else
+			{
+				var status = task["STATUS"];
+				if(status == 2)
+				{
+					console.log("[Qml]: File has uploaded -> " + task["FILE_PATH"]);
+					_Open(task["SESSION"], task["MEDIA_ID"], task["MSG_ID"], task["MSG_TYPE"], task["UNAME"], task["FILE_PATH"]);
+				}
+				else if(status == 3)
+				{
+					_TRANSFER.Retransfer(localId);
+				}
+				else
+				{
+					controller._ShowMessage(qsTr("File is uploading."));
+				}
+			}
+		}
+
+		function _End(sessionId, msgId, error)
+		{
+			if(error != 0)
+			{
+				controller._ShowMessage(qsTr("File upload error."));
+				return;
+			}
+
+			var task = _TRANSFER.GetTaskValue(msgId);
+			if(!task)
+			{
+				controller._ShowMessage(qsTr("File upload error."));
+				return;
+			}
+
+			if(task["STATUS"] != 2)
+			{
+				controller._ShowMessage(qsTr("File upload error."));
+				return;
+			}
+
+			_Open(task["SESSION"], task["MEDIA_ID"], task["MSG_ID"], task["MSG_TYPE"], task["UNAME"], task["FILE_PATH"]);
+		}
+
+		function _Open(session, media_id, local_id, msg_type, to, file)
+		{
+			var d = {
+				msg_type: msg_type,
+				uname: to,
+				local_id: local_id,
+				media_id: media_id,
+			};
+
+			if(msg_type == 49)
+			{
+				var info = _UT.GetFileInfo(file);
+				d.file_size = info["SIZE"] || 0;
+				d.file_name = info["FILE_NAME"] || "";
+				d.file_suffix = info["SUFFIX"] || "";
+			}
+
+			sessionmodel._UpdatePreProgress(session, local_id, {status: 1});
+			var s = function(ret_data){
+				ret_data.status = 0;
+				sessionmodel._UpdatePreProgress(session, ret_data.local_id, ret_data);
+			};
+			var f = function(err){
+				controller._ShowMessage(err);
+				sessionmodel._UpdatePreProgress(session, local_id, {status: 2});
+			};
+
+			Script.GetSendMediaData(d, s, f);
+		}
+	}
+
 	SubscribeModel{
 		id: subscribemodel;
 	}
 
 	QtObject{
 		id: appobj;
-		property bool __syncLock: false;
+		property int __syncLock: 0;
 		property variant dialog: null;
 
 		function _GetCheckData()
 		{
+			if(__syncLock !== 0) return;
+
 			function f(err)
 			{
 				console.log(err);
+				appobj.__Unlock();
 			}
 			function s(data)
 			{
 				if(data.retcode == 0)
 				{
 					var selector = parseInt(data.selector);
-					if(selector == 0) return;
-					else if(selector == 6) return;
+					if(selector == 0)
+					{
+						appobj.__Unlock();
+						return;
+					}
+					// else not return, because synckey will changed when next get sync data.
 					// 2 new message
 					// 4 modify contact
 					// 6 add/delete contact
 					// 7 enter/leave chat
-					if(selector == 2)
-					{
-						if(!controller._IsCurrentPage("Session") || !Qt.application.active)
-						{
-							_PIPELINE.ShowNotification(qsTr("Notification"), qsTr("You have a new message"));
-						}
-					}
-					appobj._GetSyncData();
+					//k if(selector == 2) { }
+					appobj.__syncLock = 2;
+					appobj._GetSyncData(); // get new sync key
 				}
+				else
+				appobj.__Unlock();
 			}
+			appobj.__syncLock = 1;
 			Script.GetCheckData(undefined, s, f);
 		}
 
-		function _GetSyncData(force)
+		function _GetSyncData()
 		{
-			if(force) __syncLock = false;
-			if(__syncLock) return;
-			__syncLock = true;
+			if(__syncLock !== 2) return;
+			__syncLock = 3;
 			function f(err)
 			{
 				console.log(err);
-				__syncLock = false;
+				appobj.__Unlock();
 			}
 			function s(data)
 			{
-				if(!__syncLock) return;
+				if(appobj.__syncLock !== 3) return;
 				globals.synckey = data.synckey;
 				sessionmodel._MakeSessionData(data.msgModel);
-				__syncLock = false;
+				appobj.__Unlock();
 			}
 			Script.GetSyncData(undefined, s, f);
 		}
 
-		function _GetUserContact(uname, func)
+		function _GetUserContact(uname, func, chatroomid)
 		{
+			var b = Array.isArray(uname);
 			function f(err)
 			{
 				controller._ShowMessage(err);
 			}
 			function s(data)
 			{
-				if(data.list) func(data.list[0]);
+				if(data.list)
+				{
+					if(b)
+					func(data.list);
+					else
+					func(data.list[0]);
+				}
 				else func(null);
 			}
 			var d = {
-				list: [
-					uname,
-				],
+				list: b ? uname : [ uname ],
+				chatroomid: chatroomid || "",
 			};
 			Script.GetUserContact(d, s, f);
 		}
 
 		function _Reset()
 		{
-			__syncLock = false;
+			__syncLock = 0;
+		}
+
+		function __Unlock()
+		{
+			__syncLock = 0;
 		}
 
 		function _Online(msg)
@@ -152,6 +385,15 @@ PageStackWindow {
 			};
 
 			Script.GetSendData(d, undefined, f);
+		}
+
+		function _Notify(c)
+		{
+			if(!controller._IsCurrentPage("Session") || !Qt.application.active)
+			{
+				if(settings.bShowNotification)
+				_PIPELINE.ShowNotification(qsTr("Notification"), qsTr("You have %1new message").arg(c !== undefined ? "" + c + qsTr(" ") : ""));
+			}
 		}
 
 		function _CheckUpdate(showmsg)
@@ -239,6 +481,27 @@ PageStackWindow {
 
 			Script.SyncOpenRepos(d, s, f);
 		}
+
+		function _ShowUpdates(version)
+		{
+			var texts = [];
+			var updates = _UT.Changelog().CHANGES;
+			for(var i in updates)
+			{
+				texts.push({
+					text: updates[i],
+				});
+			}
+			controller._Info(
+				qsTr("Info"),
+				qsTr("Version") + ": " + version,
+				texts,
+				undefined,
+				function(link){
+					eval(link);
+				}
+			);
+		}
 	}
 
 	Timer {
@@ -301,11 +564,11 @@ PageStackWindow {
 		visible: app.showStatusBar && _UT.dev !== 0 && !settings.bFullscreen;
 	}
 
- function _Beyond_Forever_Together()
- {
-	 var n = new Date(), p = new Date(1993, 6 - 1, 30); var y = n.getFullYear() - p.getFullYear(), m = (n.getMonth() + 1) - (p.getMonth() + 1); if(m < 0) y -= 1;
-	 controller._ShowMessage(_UT.Get("WONGKAKUI").arg(y));
- }
+	function _Beyond_Forever_Together()
+	{
+		var n = new Date(), p = new Date(1993, 6 - 1, 30); var y = n.getFullYear() - p.getFullYear(), m = (n.getMonth() + 1) - (p.getMonth() + 1); if(m < 0) y -= 1;
+		controller._ShowMessage(_UT.Get("WONGKAKUI").arg(y));
+	}
 
 	Component.onCompleted: {
 		_UT.CheckUpdate();

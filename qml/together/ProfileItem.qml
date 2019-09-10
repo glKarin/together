@@ -45,6 +45,12 @@ Item{
 			Repeater{
 				model: [
 					{
+						label: qsTr("Transfer record"),
+						name: "TransferRecord",
+						icon: "directory-move-to",
+						func: "controller._OpenTransferRecordPage();",
+					},
+					{
 						label: qsTr("Setting"),
 						name: "Setting",
 						icon: "settings",

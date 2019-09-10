@@ -2,7 +2,6 @@ import QtQuick 1.1
 import com.nokia.meego 1.1
 import "component"
 import "widget"
-import "../js/main.js" as Script
 import "../js/util.js" as Util
 
 BasePage{
@@ -111,4 +110,37 @@ BasePage{
 			}
 		}
 	}
+
+	MouseArea{
+		property variant __comp: null;
+		property variant __test: null;
+		//enabled: _UT.dev !== 0;
+		anchors.right: parent.right;
+		anchors.bottom: parent.bottom;
+		width: 64;
+		height: width;
+		onClicked: {
+			_Dev();
+		}
+		Component.onCompleted: {
+			if(_UT.dev > 0) _Dev();
+		}
+		function _Dev()
+		{
+			if(!__comp)
+			__comp = Qt.createComponent("Test.qml");
+			if(__test)
+			{
+				__test.destroy();
+				__test = null;
+			}
+			else
+			{
+				__test = __comp.createObject(root);
+				controller._ShowMessage("open dev");
+			}
+		}
+	}
+
+	// Test{ id: test; }
 }

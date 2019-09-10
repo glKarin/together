@@ -8,6 +8,14 @@ QtObject {
 	property variant __queryDialog: null;
 	property variant __selectionDialog: null;
 	property variant __infoDialog: null;
+	property variant __imageChooserDialog: null;
+	property variant __emojiChooserDialog: null;
+	property variant __fileChooserDialog: null;
+	property variant __imageViewerDialog: null;
+	property variant __videoPlayerDialog: null;
+	property variant __videoChooserDialog: null;
+	property variant __voiceRecorderDialog: null;
+	property variant __groupMemberDialog: null;
 
 	// util
 	function _CheckLogin()
@@ -90,6 +98,16 @@ QtObject {
 		if(_IsCurrentPage("Setting")) return;
 		var page = Qt.createComponent(Qt.resolvedUrl("SettingPage.qml"));
 		var p = pageStack.push(page, undefined, im);
+		p._Init();
+		return p;
+	}
+
+	function _OpenTransferRecordPage(im)
+	{
+		if(_IsCurrentPage("TransferRecord")) return;
+		var page = Qt.createComponent(Qt.resolvedUrl("TransferRecordPage.qml"));
+		var p = pageStack.push(page, undefined, im);
+		p._Init();
 		return p;
 	}
 
@@ -108,7 +126,6 @@ QtObject {
 
 	function _OpenUserPage(u, im)
 	{
-		if(_IsCurrentPage("User")) return;
 		if(!_CheckLogin()) return;
 		var page = Qt.createComponent(Qt.resolvedUrl("UserPage.qml"));
 		var p = pageStack.push(page, undefined, im);
@@ -120,7 +137,19 @@ QtObject {
 	{
 		if(_IsCurrentPage("About")) return;
 		var page = Qt.createComponent(Qt.resolvedUrl("AboutPage.qml"));
-		pageStack.push(page, undefined, im);
+		var p = pageStack.push(page, undefined, im);
+		p._Init();
+		return p;
+	}
+
+	function _OpenCameraPage(func, im)
+	{
+		if(_IsCurrentPage("Camera")) return;
+		var page = Qt.createComponent(Qt.resolvedUrl("CameraPage.qml"));
+		var p = pageStack.push(page, undefined, im);
+		p._Init();
+		if(typeof(func) === "function") p.captured.connect(func);
+		return p;
 	}
 
 	function _OpenBDTBHome(u)
@@ -210,6 +239,137 @@ QtObject {
 		if(typeof(selection_func) === "function") diag.select.connect(selection_func);
 
 		return diag;
+	}
+
+	function _OpenImageChooser(func, emoji)
+	{
+		if(!__imageChooserDialog)
+		{
+			__imageChooserDialog = Qt.createComponent("widget/ImageChooserDialog.qml");
+		}
+		var prop = {
+		};
+		if(emoji)
+			opt.gifOnly = emoji ? true : false;
+		var diag = __imageChooserDialog.createObject(pageStack.currentPage, prop);
+		if(typeof(func) === "function") diag.select.connect(func);
+
+		return diag;
+	}
+
+	function _OpenEmojiChooser(func)
+	{
+		if(!__emojiChooserDialog)
+		{
+			__emojiChooserDialog = Qt.createComponent("widget/EmojiChooserDialog.qml");
+		}
+		var prop = {
+		};
+		var diag = __emojiChooserDialog.createObject(pageStack.currentPage, prop);
+		if(typeof(func) === "function") diag.select.connect(func);
+
+		return diag;
+	}
+
+	function _OpenImageViewer(url)
+	{
+		if(!__imageViewerDialog)
+		{
+			__imageViewerDialog = Qt.createComponent("widget/ImageViewerDialog.qml");
+		}
+		var prop = {
+			source: url
+		};
+		var diag = __imageViewerDialog.createObject(pageStack.currentPage, prop);
+
+		return diag;
+	}
+
+	function _OpenVideoPlayer(url)
+	{
+		if(!__videoPlayerDialog)
+		{
+			__videoPlayerDialog = Qt.createComponent("widget/VideoPlayerDialog.qml");
+		}
+		var prop = {
+			source: url
+		};
+		var diag = __videoPlayerDialog.createObject(pageStack.currentPage, prop);
+
+		return diag;
+	}
+
+	function _OpenFileChooser(func)
+	{
+		if(!__fileChooserDialog)
+		{
+			__fileChooserDialog = Qt.createComponent("widget/FileChooserDialog.qml");
+		}
+		var prop = {
+		};
+		var diag = __fileChooserDialog.createObject(pageStack.currentPage, prop);
+		if(typeof(func) === "function") diag.select.connect(func);
+
+		return diag;
+	}
+
+	function _OpenVideoChooser(func)
+	{
+		if(!__videoChooserDialog)
+		{
+			__videoChooserDialog = Qt.createComponent("widget/VideoChooserDialog.qml");
+		}
+		var prop = {
+		};
+		var diag = __videoChooserDialog.createObject(pageStack.currentPage, prop);
+		if(typeof(func) === "function") diag.select.connect(func);
+
+		return diag;
+	}
+
+	function _OpenVoiceRecorder(func)
+	{
+		if(!__voiceRecorderDialog)
+		{
+			__voiceRecorderDialog = Qt.createComponent("widget/VoiceRecorderDialog.qml");
+		}
+		var prop = {
+		};
+		var diag = __voiceRecorderDialog.createObject(pageStack.currentPage, prop);
+		if(typeof(func) === "function") diag.recorded.connect(func);
+
+		return diag;
+	}
+
+	function _OpenGroupMemberDialog(group, roomid, func)
+	{
+		if(!__groupMemberDialog)
+		{
+			__groupMemberDialog = Qt.createComponent("widget/GroupMemberDialog.qml");
+		}
+		var prop = {
+		};
+		var diag = __groupMemberDialog.createObject(pageStack.currentPage, prop);
+		if(typeof(func) === "function") diag.select.connect(func);
+		diag._Init(group + " " + roomid);
+
+		return diag;
+	}
+
+	function _OpenFile(path, ext)
+	{
+		if(ext)
+		Qt.openUrlExternally(path);
+		else
+		{
+			var type = _UT.GetFileInfo(path, "TYPE").toLowerCase();
+			if(type === "image")
+			_OpenImageViewer(path);
+			else if(type === "video")
+			_OpenVideoPlayer(path);
+			else
+			Qt.openUrlExternally(path);
+		}
 	}
 
 	function _IsCurrentPage(name)

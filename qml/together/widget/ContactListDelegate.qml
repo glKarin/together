@@ -20,24 +20,16 @@ Item{
 		}
 	}
 
-	Image{
+	AvatarWidget{
 		id: avatar;
 		anchors.left: parent.left;
 		anchors.leftMargin: constants._iSpacingLarge;
 		anchors.verticalCenter: parent.verticalCenter;
 		height: parent.height - constants._iSpacingLarge * 2;
 		width: height;
-		fillMode: Image.PreserveAspectCrop;
-		smooth: true;
-		clip: true
 		source: model.avatar;
-		//cache: false;
-		sourceSize: Qt.size(width, height);
-		MouseArea{
-			anchors.fill: parent;
-			onClicked: {
-				root.imageClicked(index, model);
-			}
+		onClicked: {
+			root.imageClicked(index, model);
 		}
 	}
 

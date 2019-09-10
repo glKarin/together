@@ -17,7 +17,7 @@ Rectangle{
 	property int iDragMaximumX;
 	*/
 	property int eDragAxis: Drag.XandYAxis;
-	property bool bDragable: settings.bTouchIconDrag;
+	property bool bDragable: false;
 	signal clicked;
 
 	radius: Math.min(width, height) / 2;
@@ -38,6 +38,7 @@ Rectangle{
 		opacity: root.enabled ? 0.6 : 0.8;
 		color: constants._cPrimaryColor;
 		radius: root.radius;
+		smooth: true;
 	}
 
 	MouseArea{

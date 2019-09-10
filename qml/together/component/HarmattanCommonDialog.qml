@@ -7,16 +7,17 @@ Dialog {
 	objectName: "idHarmattanCommonDialog";
 	property string titleText: "";
 	property bool bAutoDestroy: true;
+	property bool bAutoOpen: true;
 	property alias tools: btns.children;
 
 	property int __compUsed: header.height + footer.height + constants._iSpacingMedium * 2;
 	property int __contentHeight: Math.max(visualParent ? visualParent.height - __compUsed : (pageStack.currentPage ? pageStack.currentPage.height - __compUsed : 240), 0);
 	property int __maxContentHeight : visualParent
 	? visualParent.height * 0.87
-	- root.platformStyle.titleBarHeight - root.platformStyle.contentSpacing - 50
-	: root.parent
-	? root.parent.height * 0.87
-	- root.platformStyle.titleBarHeight - root.platformStyle.contentSpacing - 50
+	- genericDialog.platformStyle.titleBarHeight - genericDialog.platformStyle.contentSpacing - 50
+	: genericDialog.parent
+	? genericDialog.parent.height * 0.87
+	- genericDialog.platformStyle.titleBarHeight - genericDialog.platformStyle.contentSpacing - 50
 	: 350;
 
 	property Style platformStyle: SelectionDialogStyle {}
@@ -160,5 +161,16 @@ Dialog {
 
 	}
 
+	Component.onCompleted: {
+		if(bAutoOpen) open();
+	}
+
+	function _Init()
+	{
+	}
+
+	function _DeInit()
+	{
+	}
 }
 

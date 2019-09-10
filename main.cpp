@@ -11,7 +11,15 @@
 #include "pipeline.h"
 #include "networkconnector.h"
 #include "networkmanager.h"
+#include "qmlimage.h"
+#include "cache.h"
+#include "transfermanager.h"
+#include "downloadtask.h"
 #include "qtm/qdeclarativewebview.h"
+#include "transferrecord.h"
+#include "filemodel.h"
+#include "audiorecorder.h"
+#include "database.h"
 #ifdef _KARIN_MM_EXTENSIONS
 #include "qtm/qdeclarativevideo_p.h"
 #endif
@@ -19,6 +27,8 @@
 static idUtility *ut = 0;
 static idPipeline *pipeline = 0;
 static idNetworkConnector *connector = 0;
+static idTransferManager *transferManager = 0;
+idDatabase *globalDb;
 idDeclarativeNetworkAccessManagerFactory factory;
 
 namespace id
@@ -34,6 +44,17 @@ namespace id
 {
 	class QmlApplicationViewer : public ::QmlApplicationViewer
 	{
+		public:
+			explicit QmlApplicationViewer(QWidget *widget = 0)
+				: ::QmlApplicationViewer(widget)
+			{
+				setObjectName("id::QmlApplicationViewer");
+			}
+			virtual ~QmlApplicationViewer()
+			{
+				ID_QOBJECT_DESTROY_DBG
+			}
+		protected:
 		virtual void closeEvent(QCloseEvent *event)
 		{
 			if(idUtility::Instance()->RunMode() == idUtility::RunMode_Only_Hide_Window)
@@ -48,6 +69,8 @@ namespace id
 
 	bool try_to_run_app_instance()
 	{
+		
+#ifndef _SIMULATOR
 		QDBusInterface interface("com." ID_DEV "." ID_PKG, "/com/" ID_DEV "/" ID_PKG, "com." ID_DEV "." ID_PKG);
 		if(!interface.isValid())
 		{
@@ -57,6 +80,9 @@ namespace id
 		qDebug() << "Try to call singleton instance";
 		QDBusMessage msg = interface.call("ShowGUI");
 		return true;
+#else
+		return false;
+#endif
 	}
 
 	void create_qml_viewer()
@@ -77,12 +103,11 @@ namespace id
 		engine = qml_viewer->engine();
 		context = engine->rootContext();
 		engine->setNetworkAccessManagerFactory(&factory);
-		connector->SetEngine(engine);
-		ut->SetEngine(engine);
 
 		context->setContextProperty("_UT", ut);
 		context->setContextProperty("_CONNECTOR", connector);
 		context->setContextProperty("_PIPELINE", pipeline);
+		context->setContextProperty("_TRANSFER", transferManager);
 
 		QObject::connect(qml_viewer, SIGNAL(destroyed()), pipeline, SLOT(QmlViewerDestroyed()));
 		QObject::connect(engine, SIGNAL(quit()), pipeline, SLOT(Quit()));
@@ -91,6 +116,14 @@ namespace id
 		qml_viewer->showExpanded();
 		lock = false;
 	}
+
+	void init_database()
+	{
+		static idDatabase _db;
+		if(!_db.IsConnected())
+			_db.Connect(ID_PKG, ID_DEV, ID_CODE);
+		globalDb = &_db;
+	}
 }
 
 Q_DECL_EXPORT int main(int argc, char *argv[])
@@ -98,6 +131,7 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
 	QApplication *a;
 	QTranslator translator;
 	QString qm, qmdir;
+	int ret;
 	const QString RegisterUncreatableTypeMsg(QString("[ERROR]: %1 -> %2").arg("Can not create a single-instance object"));
 
 	a = createApplication(argc, argv);
@@ -129,6 +163,8 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
 	a->setApplicationVersion(ID_VER);
 	a->setOrganizationName(ID_DEV);
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
+	idCache::InitCache();
+	id::init_database();
 
 	QString locale = QLocale::system().name();
 #ifdef _HARMATTAN
@@ -162,14 +198,25 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
 	qmlRegisterType<QDeclarativeVideo>(ID_QML_URI, ID_QML_MAJOR_VER, ID_QML_MINOR_VER, ID_APP "Video");
 #endif
 	qmlRegisterUncreatableType<idNetworkConnector>(ID_QML_URI, ID_QML_MAJOR_VER, ID_QML_MINOR_VER, ID_APP "NetworkConnector", RegisterUncreatableTypeMsg.arg("idNetworkConnector"));
+	qmlRegisterType<idQmlImage>(ID_QML_URI, ID_QML_MAJOR_VER, ID_QML_MINOR_VER, ID_APP "Image");
+	qmlRegisterType<idDownloadTask>(ID_QML_URI, ID_QML_MAJOR_VER, ID_QML_MINOR_VER, ID_APP "DownloadTask");
+	qmlRegisterType<idTransferRecord>(ID_QML_URI, ID_QML_MAJOR_VER, ID_QML_MINOR_VER, ID_APP "TransferRecord");
+	qmlRegisterType<idFileModel>(ID_QML_URI, ID_QML_MAJOR_VER, ID_QML_MINOR_VER, ID_APP "FileModel");
+	qmlRegisterType<idAudioRecorder>(ID_QML_URI, ID_QML_MAJOR_VER, ID_QML_MINOR_VER, ID_APP "AudioRecorder");
 
 	ut = idUtility::Instance();
 	connector = idNetworkConnector::Instance();
+	transferManager = idTransferManager::Instance();
 	pipeline = idPipeline::Create(qApp);
 
 	inited = true;
 
 	id::create_qml_viewer();
 
-	return app->exec();
+	ret = app->exec();
+
+	pipeline->ClearNotifications();
+	globalDb->Disconnect();
+
+	return ret;
 }

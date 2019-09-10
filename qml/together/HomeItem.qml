@@ -35,6 +35,7 @@ Item{
 				globals._Dump();
 				sessionmodel._SetData(data.data);
 				root._inited = true;
+				obj._GetGroupInitData();
 				bBusy = false;
 			};
 			var f = function(err){
@@ -44,6 +45,24 @@ Item{
 			};
 
 			Script.GetInitData(undefined, s, f);
+		}
+
+		function _GetGroupInitData()
+		{
+			if(!globals._IsValid()) return;
+			if(!sessionmodel.__inited) return;
+
+			var unames = [];
+			Util.ModelForeach(sessionmodel, function(e){
+				if(Script.idAPI.IsGroupUname(e.uname))
+				unames.push(e.uname);
+			});
+			if(unames.length > 0)
+			{
+				appobj._GetUserContact(unames, function(data){
+					sessionmodel._UpdateData(data);
+				});
+			}
 		}
 	}
 

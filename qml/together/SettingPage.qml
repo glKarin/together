@@ -9,31 +9,69 @@ BasePage {
 
 	sTitle: qsTr("Setting");
 	objectName: "idSettingPage";
+	menus: menu;
 
-	ButtonRow{
-		id: header;
-		anchors.top: parent.top;
-		anchors.horizontalCenter: parent.horizontalCenter;
-		width: parent.width - constants._iSizeBig;
-		height: constants._iSizeXL;
-		TabButton{
-			height: parent.height;
-			text: qsTr("General");
-			tab: generalflick;
-		}
-		TabButton{
-			height: parent.height;
-			text: qsTr("Chat");
-			tab: chatflick;
+	ContextMenu{
+		id: menu;
+		MenuLayout{
+			MenuItem{
+				enabled: obj.recordCacheSize > 0;
+				text: qsTr("Clear voice record") + ": " + Util.FormatFileSize(obj.recordCacheSize);
+				onClicked: {
+					obj._ClearLocalStorage("VOICE_RECORD");
+				}
+			}
+			MenuItem{
+				enabled: obj.tempCacheSize > 0;
+				text: qsTr("Clear temp cache") + ": " + Util.FormatFileSize(obj.tempCacheSize);
+				onClicked: {
+					obj._ClearLocalStorage("TEMP_CACHE");
+				}
+			}
+			MenuItem{
+				text: qsTr("Download") + ": " + Util.FormatFileSize(obj.downloadCacheSize);
+				enabled: false;
+			}
+			MenuItem{
+				text: qsTr("Reset settings");
+				onClicked: {
+					obj._ResetSettings();
+				}
+			}
 		}
 	}
 
 	function _Init()
 	{
+		obj._CaleCacheSize();
 	}
 
 	QtObject{
 		id: obj;
+		property int recordCacheSize: 0;
+		property int tempCacheSize: 0;
+		property int downloadCacheSize: 0;
+
+		function _CaleCacheSize()
+		{
+			var cache = _UT.GetStorageInfo();
+			recordCacheSize = cache["VOICE_RECORD"];
+			tempCacheSize = cache["TEMP_CACHE"];
+			downloadCacheSize = cache["DOWNLOAD"];
+		}
+
+		function _ClearLocalStorage(type)
+		{
+			controller._Query(
+				qsTr("WARNING"),
+				qsTr("It will remove local files! Are you sure?"),
+				qsTr("Clear"), qsTr("Cancel"),
+				function(){
+					_UT.ClearLocalStorage(type);
+					obj._CaleCacheSize();
+				}
+			);
+		}
 
 		function _ResetSettings()
 		{
@@ -65,6 +103,25 @@ BasePage {
 			syncBackground.value = settings.iSyncBackground;
 			onlineBackground.value = settings.iOnlineBackground;
 			onlineCheck.checked = settings.bOnlineCheck;
+			showNotification.checked = settings.bShowNotification;
+		}
+	}
+
+	ButtonRow{
+		id: header;
+		anchors.top: parent.top;
+		anchors.horizontalCenter: parent.horizontalCenter;
+		width: parent.width;
+		height: constants._iSizeXL;
+		TabButton{
+			height: parent.height;
+			text: qsTr("General");
+			tab: generalflick;
+		}
+		TabButton{
+			height: parent.height;
+			text: qsTr("Chat");
+			tab: chatflick;
 		}
 	}
 
@@ -72,7 +129,7 @@ BasePage {
 		anchors.top: header.bottom;
 		anchors.left: parent.left;
 		anchors.right: parent.right;
-		anchors.bottom: resetbtn.top;
+		anchors.bottom: parent.bottom;
 		anchors.bottomMargin: constants._iSpacingMedium;
 		currentTab: generalflick;
 
@@ -316,20 +373,20 @@ BasePage {
 					}
 				}
 
+				SwitcherWidget{
+					id: showNotification;
+					iMargins: constants._iSpacingLarge;
+					sText: qsTr("Show notification when new message coming.");
+					checked: settings.bShowNotification;
+					onCheckedChanged: {
+						settings.bShowNotification = checked;
+					}
+				}
+
 			}
 		}
 		ScrollDecorator{
 			flickableItem: chatflick;
-		}
-	}
-
-	Button{
-		id: resetbtn;
-		anchors.bottom: parent.bottom;
-		anchors.horizontalCenter: parent.horizontalCenter;
-		text: qsTr("Reset settings");
-		onClicked: {
-			obj._ResetSettings();
 		}
 	}
 }
