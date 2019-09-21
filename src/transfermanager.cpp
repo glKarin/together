@@ -180,47 +180,29 @@ QVariant idTransferManager::GetTaskValue(const QString &mid, const QString &name
 
 QString idTransferManager::GenerateDownloadFileName(const QString &msgId, int type, const QString &fileName) const
 {
-	int index;
-	QString baseName;
-	QString extName;
 	QString dir;
 
-	index = 0;
-	if(!fileName.isEmpty())
+	switch(type)
 	{
-		QFileInfo info(fileName);
-		baseName = info.baseName();
-		extName = "." + info.completeSuffix();
+		case idTransferManager::FileType_Voice:
+			dir = "/voice";
+			break;
+		case idTransferManager::FileType_Video:
+		case idTransferManager::FileType_MicroVideo:
+			dir = "/video";
+			break;
+		case idTransferManager::FileType_Image:
+			dir = "/image";
+			break;
+		case idTransferManager::FileType_Emoji:
+			dir = "/emoji";
+			break;
+		default:
+			break;
 	}
-	else
-	{
-		switch(type)
-		{
-			case idTransferManager::FileType_Voice:
-				extName = ".mp3";
-				dir = "/voice";
-				break;
-			case idTransferManager::FileType_Video:
-			case idTransferManager::FileType_MicroVideo:
-				extName = ".mp4";
-				dir = "/video";
-				break;
-			case idTransferManager::FileType_Image:
-				extName = ".jpg";
-				dir = "/image";
-				break;
-			case idTransferManager::FileType_Emoji:
-				extName = ".gif";
-				dir = "/emoji";
-				break;
-			default:
-				extName = "";
-				break;
-		}
-		baseName = msgId;
-	}
+
 	id::mkdirs(m_path + dir);
-	return id::generate_file_name(baseName + extName, m_path + dir);
+	return id::generate_file_name(fileName.isEmpty() ? msgId : fileName, m_path + dir);
 }
 
 void idTransferManager::finished_slot(int error)
@@ -231,11 +213,11 @@ void idTransferManager::finished_slot(int error)
 	if(!task)
 		return;
 	idTransferRecord::Dump(task);
+	emit transferFinished(task->m_type, task->m_sessionId, task->m_msgId, error);
 	if(task->m_type == idTransferTask_base::Type_Upload)
 		emit uploadFinished(task->m_sessionId, task->m_msgId, error);
 	else
 		emit downloadFinished(task->m_sessionId, task->m_msgId, error);
-	emit transferFinished(task->m_type, task->m_sessionId, task->m_msgId, error);
 }
 
 void idTransferManager::started_slot()
@@ -245,11 +227,11 @@ void idTransferManager::started_slot()
 	task = static_cast<idTransferTask_base *>(sender());
 	if(!task)
 		return;
+	emit transferStarted(task->m_type, task->m_sessionId, task->m_msgId);
 	if(task->m_type == idTransferTask_base::Type_Upload)
 		emit uploadStarted(task->m_sessionId, task->m_msgId);
 	else
 		emit downloadStarted(task->m_sessionId, task->m_msgId);
-	emit transferStarted(task->m_type, task->m_sessionId, task->m_msgId);
 }
 
 void idTransferManager::progress_slot(qreal progress)
@@ -259,11 +241,11 @@ void idTransferManager::progress_slot(qreal progress)
 	task = static_cast<idTransferTask_base *>(sender());
 	if(!task)
 		return;
+	emit transferProgress(task->m_type, task->m_sessionId, task->m_msgId, progress);
 	if(task->m_type == idTransferTask_base::Type_Upload)
 		emit uploadProgress(task->m_sessionId, task->m_msgId, progress);
 	else
 		emit downloadProgress(task->m_sessionId, task->m_msgId, progress);
-	emit transferProgress(task->m_type, task->m_sessionId, task->m_msgId, progress);
 }
 
 int idTransferManager::Retransfer(const QString &mid)

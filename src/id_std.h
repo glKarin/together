@@ -6,7 +6,7 @@
 #define ID_APP "Together"
 #define ID_NAME QObject::tr("Together")
 #define ID_PKG "together"
-#define ID_VER "2014.0.7harmattan2"
+#define ID_VER "2014.0.7harmattan3"
 #define ID_CODE "paradise"
 #define ID_DEV "karin"
 #define ID_RELEASE "20140405"
@@ -77,6 +77,7 @@ namespace id
 	int get_time_zone();
 	QString get_mime_type(const QString &extName);
 	qint64 cale_dir_size(const QString &path);
+	int get_file_magic(QString &res, const QString &file);
 }
 
 #endif // ID_STD_H

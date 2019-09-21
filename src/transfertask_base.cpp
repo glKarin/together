@@ -96,7 +96,7 @@ qint64 idTransferTask_base::TotalBytes() const
 
 void idTransferTask_base::SetFilePath(const QString &value)
 {
-	if(m_status != idTransferTask_base::Status_Ready)
+	if(m_status != idTransferTask_base::Status_Ready && m_status != idTransferTask_base::Status_Done)
 		return;
 	if(m_filePath != value)
 	{

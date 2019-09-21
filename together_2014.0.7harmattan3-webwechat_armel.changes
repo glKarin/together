@@ -3,7 +3,7 @@ Date: Sun, 30 Jun 2019 23:59:59 +0800
 Source: together
 Binary: together
 Architecture: armel
-Version: 2014.0.7harmattan2-webwechat
+Version: 2014.0.7harmattan3-webwechat
 Distribution: unstable
 Urgency: low
 Maintainer: karin <beyondk2000@gmail.com>
@@ -11,8 +11,9 @@ Changed-By: karin <beyondk2000@gmail.com>
 Description: 
  together   - Together is a simple client for ******.
 Changes: 
- together (2014.0.7harmattan2-webwechat) unstable; urgency=low
+ together (2014.0.7harmattan3-webwechat) unstable; urgency=low
  .
+   * Fixed downloaded file suffix.
    * Fixed some user(redirect to wx2.qq.com) avatar image.
    * Add send emoji, animation emoji, image, video and files.
    * Add receive voice, animation emoji, image, video and files.
@@ -23,9 +24,9 @@ Changes:
    * Optmize send message effect.
    * Some fixes.
 Checksums-Sha1: 
- 61f8e9eb65832d61c2b306f9a3b9ba84cba10717 690400 together_2014.0.7harmattan2-webwechat_armel.deb
+ e7301e8d6891cb554f2bc40e1186c656d56a54c4 692406 together_2014.0.7harmattan3-webwechat_armel.deb
 Checksums-Sha256: 
- 77a5596c9777261b13927d881542095fa5a058572be77f92275138fadb1ad965 690400 together_2014.0.7harmattan2-webwechat_armel.deb
+ 8c6bfe2d9b018b73ee2942740de7768343fd0b47cfa6020ceedfc74bf2e7de81 692406 together_2014.0.7harmattan3-webwechat_armel.deb
 Files: 
- a6c8a333a628178bf07762d4fd50abff 690400 user/other optional together_2014.0.7harmattan2-webwechat_armel.deb
+ bd90953e15f002e79c356910aa7e23a8 692406 user/other optional together_2014.0.7harmattan3-webwechat_armel.deb
 Maemo-Display-Name: Together

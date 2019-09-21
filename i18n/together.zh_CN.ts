@@ -618,12 +618,12 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/id_std.cpp" line="183"/>
+        <location filename="../src/id_std.cpp" line="184"/>
         <source>ERROR</source>
         <translation type="unfinished">错误</translation>
     </message>
     <message>
-        <location filename="../src/id_std.cpp" line="183"/>
+        <location filename="../src/id_std.cpp" line="184"/>
         <source>Parse XML error</source>
         <translation type="unfinished">解析XML错误</translation>
     </message>
@@ -634,66 +634,71 @@
     </message>
     <message>
         <location filename="../src/utility.cpp" line="342"/>
+        <source>Fixed downloaded file suffix.</source>
+        <translation type="unfinished">修复下载文件的后缀名, 使之可以正常打开.</translation>
+    </message>
+    <message>
+        <location filename="../src/utility.cpp" line="343"/>
         <source>Fixed some user(redirect to wx2.qq.com) avatar image.</source>
         <translation type="unfinished">修复部分用户(登录时重定向至wx2.qq.com)头像显示问题.</translation>
     </message>
     <message>
-        <location filename="../src/utility.cpp" line="343"/>
+        <location filename="../src/utility.cpp" line="344"/>
         <source>Add send emoji, animation emoji, image, video and files.</source>
         <translation type="unfinished">新增发送表情, 动画表情, 图片, 视频, 文件.</translation>
     </message>
     <message>
-        <location filename="../src/utility.cpp" line="344"/>
+        <location filename="../src/utility.cpp" line="345"/>
         <source>Add receive voice, animation emoji, image, video and files.</source>
         <translation type="unfinished">新增接收语音, 动画表情, 图片, 视频, 文件.</translation>
     </message>
     <message>
-        <location filename="../src/utility.cpp" line="347"/>
+        <location filename="../src/utility.cpp" line="348"/>
         <source>Add view member on group.</source>
         <translation type="unfinished">新增查看群成员.</translation>
     </message>
     <message>
-        <location filename="../src/utility.cpp" line="348"/>
+        <location filename="../src/utility.cpp" line="349"/>
         <source>Fixed view group member avatar and name.</source>
         <translation type="unfinished">修复群成员名称头像显示.</translation>
     </message>
     <message>
-        <location filename="../src/utility.cpp" line="349"/>
+        <location filename="../src/utility.cpp" line="350"/>
         <source>Optmize send message effect.</source>
         <translation type="unfinished">优化消息发送效果.</translation>
     </message>
     <message>
-        <location filename="../src/utility.cpp" line="658"/>
+        <location filename="../src/utility.cpp" line="659"/>
         <source>Click to play video</source>
         <translation type="unfinished">点击播放视频</translation>
     </message>
     <message>
-        <location filename="../src/utility.cpp" line="660"/>
+        <location filename="../src/utility.cpp" line="661"/>
         <source>Voice message</source>
         <translation type="unfinished">语音消息</translation>
     </message>
     <message>
-        <location filename="../src/utility.cpp" line="662"/>
+        <location filename="../src/utility.cpp" line="663"/>
         <source>File</source>
         <translation type="unfinished">文件</translation>
     </message>
     <message>
-        <location filename="../src/utility.cpp" line="664"/>
+        <location filename="../src/utility.cpp" line="665"/>
         <source>Click to download</source>
         <translation type="unfinished">点击下载</translation>
     </message>
     <message>
-        <location filename="../src/utility.cpp" line="345"/>
+        <location filename="../src/utility.cpp" line="346"/>
         <source>Add transfer record manager page, all storage files is in &apos;/home/user/MyDocs/together&apos; directory.</source>
         <translation type="unfinished">新增传输记录管理, 所有本地文件存储在&apos;/home/user/MyDocs/together&apos;文件夹.</translation>
     </message>
     <message>
-        <location filename="../src/utility.cpp" line="346"/>
+        <location filename="../src/utility.cpp" line="347"/>
         <source>Add long press to delete, revoke and copy message.</source>
         <translation type="unfinished">新增长按信消息可以删除, 撤回和复制.</translation>
     </message>
     <message>
-        <location filename="../src/utility.cpp" line="350"/>
+        <location filename="../src/utility.cpp" line="351"/>
         <source>Some fixes.</source>
         <translation type="unfinished">一些小修复.</translation>
     </message>

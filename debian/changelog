@@ -1,5 +1,6 @@
-together (2014.0.7harmattan2-webwechat) unstable; urgency=low
+together (2014.0.7harmattan3-webwechat) unstable; urgency=low
 
+  * Fixed downloaded file suffix.
   * Fixed some user(redirect to wx2.qq.com) avatar image.
   * Add send emoji, animation emoji, image, video and files.
   * Add receive voice, animation emoji, image, video and files.

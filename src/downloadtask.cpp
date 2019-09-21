@@ -7,6 +7,8 @@
 #include <QUrl>
 #include <QDebug>
 
+#include "transfermanager.h"
+
 #include "id_std.h"
 
 	idDownloadTask::idDownloadTask(QObject *parent)
@@ -220,8 +222,77 @@ void idDownloadTask::End()
 	}
 
 	SetStatus(m_error == 0 ? idTransferTask_base::Status_Done : idTransferTask_base::Status_Error);
+	if(m_status == idTransferTask_base::Status_Done)
+		GuessFileSuffix();
 	emit finished(m_error);
 
 	qDebug() << "[Debug]: End download: " << m_filePath << " -> " << (m_error == 0 ? "success" : "error");
 }
 
+void idDownloadTask::GuessFileSuffix()
+{
+	int r;
+
+	if(m_msgType == idTransferManager::FileType_File)
+		return;
+
+	QString mime;
+	QString ext;
+
+	r = id::get_file_magic(mime, m_filePath);
+	if(r == 0)
+	{
+		if(mime == "image/png")
+			ext = "png";
+		else if(mime == "image/jpg")
+			ext = "jpg";
+		else if(mime == "image/jpeg")
+			ext = "jpeg";
+		else if(mime == "image/x-ms-bmp")
+			ext = "bmp";
+
+		else if(mime == "image/gif")
+			ext = "gif";
+
+		else if(mime == "video/mp4")
+			ext = "mp4";
+		else if(mime == "video/x-flv")
+			ext = "flv";
+		else if(mime == "video/3gp")
+			ext = "3gp";
+
+		else if(mime == "audio/mpeg")
+			ext = "mp3";
+		else if(mime == "audio/x-wav")
+			ext = "wav";
+
+		else
+		{
+			switch(m_msgType)
+			{
+				case idTransferManager::FileType_Voice:
+					ext = "voice.guess.mp3";
+					break;
+				case idTransferManager::FileType_Image:
+					ext = "image.guess.jpg";
+					break;
+				case idTransferManager::FileType_Emoji:
+					ext = "emoji.guess.gif";
+					break;
+				case idTransferManager::FileType_Video:
+				case idTransferManager::FileType_MicroVideo:
+					ext = "video.guess.mp4";
+					break;
+			}
+		}
+	}
+	//qDebug() << r << mime << ext;
+	if(!ext.isEmpty())
+	{
+		QString newName(m_filePath + "." + ext);
+		if(QFile::rename(m_filePath, newName))
+			SetFilePath(newName);
+		else
+			qWarning() << "[Warning]: Rename downloaded file error: " << m_filePath << " -> " << newName;
+	}
+}

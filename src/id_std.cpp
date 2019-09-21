@@ -14,6 +14,7 @@
 #include <QtXml>
 
 #include <time.h>
+#include <magic.h>
 
 namespace id
 {
@@ -41,7 +42,7 @@ namespace id
 	static qint64 cale_dir_size_r(const QString &path, bool cale_this_if_is_dir = true)
 	{
 		qint64 r;
-		QDir dir(path);
+        QDir dir(path);
 
 		r = 0;
 		if(!dir.exists())
@@ -619,6 +620,49 @@ namespace id
 		{
 			return cale_dir_size_r(info.absoluteFilePath(), false);
 		}
+		return 0;
+	}
+
+	int get_file_magic(QString &res, const QString &file)
+	{
+#define CHECK_ERR(cond, res) \
+		if(!(cond)) \
+		{ \
+			err_no = magic_errno(m); \
+			err_str = magic_error(m); \
+			qDebug() << "[Warning]: Get file magic error -> " << file << ": " << err_no << " - " << err_str; \
+			r = (res); \
+			goto __Exit; \
+		}
+
+		const char *type;
+		const char *err_str;
+		int err_no;
+		int ret;
+		magic_t m;
+		int r;
+
+		r = 0;
+
+		std::string cpp_file = file.toStdString();
+		m = magic_open(MAGIC_MIME_TYPE);
+		CHECK_ERR(m, 1)
+
+			ret = magic_load(m, NULL);
+		CHECK_ERR(ret == 0, 2)
+
+			type = magic_file(m, cpp_file.c_str());
+		CHECK_ERR(type != NULL, 3)
+
+			qDebug() << "[Debug]: file_magic -> " << file << " - " << type;
+		res = type;
+
+__Exit:
+		if(m)
+            magic_close(m);
+
+        return r;
+#undef CHECK_ERR
 	}
 }
 

@@ -76,6 +76,7 @@ QT += dbus
 DEFINES += _HARMATTAN
 DEFINES += _MAEMO_MEEGOTOUCH_INTERFACES_DEV
 CONFIG += videosuiteinterface-maemo-meegotouch meegotouch
+LIBS += -lmagic # for file mime type
 #DEFINES += _VHAS_LIBQJSON_DEV
 
 eventtype.files = misc/together.conf

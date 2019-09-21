@@ -27,6 +27,7 @@ class idDownloadTask : public idTransferTask_base
 		virtual void End();
 
 	private:
+		void GuessFileSuffix();
 
 		friend class idTransferManager;
 		Q_DISABLE_COPY(idDownloadTask)

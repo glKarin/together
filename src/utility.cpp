@@ -339,6 +339,7 @@ QVariant idUtility::Changelog(const QString &version) const
 	if(version.isEmpty())
 	{
 		list 
+			<< QObject::tr("Fixed downloaded file suffix.")
 			<< QObject::tr("Fixed some user(redirect to wx2.qq.com) avatar image.")
 			<< QObject::tr("Add send emoji, animation emoji, image, video and files.")
 			<< QObject::tr("Add receive voice, animation emoji, image, video and files.")
